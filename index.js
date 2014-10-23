@@ -1,17 +1,39 @@
 'use strict';
 
-var lodash = require('lodash');
-var isNumber = lodash.isNumber;
-var isArray = lodash.isArray;
-var extend = lodash.extend;
-var isFunction = lodash.isFunction;
-var isUndefined = lodash.isUndefined;
-var isString = lodash.isString;
-var each = lodash.each;
-var clone = lodash.clone;
+function extend (target, source) {
+  target = target || {};
+  for (var prop in source) {
+    target[prop] = source[prop];
+  }
+  return target;
+}
+
+function clone(thing) {
+  return extend({}, thing);
+}
 
 function indentity(thing) {
   return thing;
+}
+
+function isString(thing) {
+  return typeof thing === 'string';
+}
+
+function isNumber(thing) {
+  return typeof thing === 'number';
+}
+
+function isFunction(thing) {
+  return typeof thing === 'function';
+}
+
+function isUndefined(thing) {
+  return typeof thing === 'undefined';
+}
+
+function isArray(thing) {
+  return Object.prototype.toString.call(thing) === '[object Array]';
 }
 
 module.exports = function(globalConfig) {
