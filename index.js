@@ -11,11 +11,18 @@ var each = lodash.each;
 var clone = lodash.clone;
 var Signal = require('signals').Signal;
 
+function indentity(thing) {
+  return thing;
+}
+
 module.exports = function(globalConfig) {
   globalConfig = extend({
     castString: true,
     parseNumbers: true,
-    changeEvent: true
+    changeEvent: true,
+    extraProperties: false,
+    embedPlainData: true,
+    arrayConstructor: indentity
   }, globalConfig);
 
   function getConstructor(item) {
@@ -77,32 +84,41 @@ module.exports = function(globalConfig) {
     }
   }
 
-  return function Schema(fields) {
+  return function Schema(fields, config) {
+    config = extend(globalConfig, config);
     return function(data) {
       var _data = clone(data);
-      var result = {
-        _data: _data
-      };
-      if (globalConfig.changeEvent) {
+      var result = {};
+
+      if (globalConfig.extraProperties) {
+        result = clone(_data);
+      }
+      if (config.embedPlainData) {
+        result._data = _data;
+      }
+      if (config.changeEvent) {
         result.onChange = new Signal();
       }
-      each(fields, function(config, fieldname) {
-        config = parseConfig(config);
-        if (config.isArray) {
-          _data[fieldname] = _data[fieldname].map(config.constructor);
+
+      each(fields, function(fieldConfig, fieldname) {
+        fieldConfig = parseConfig(fieldConfig);
+        if (fieldConfig.isArray) {
+          var arrayData = _data[fieldname].map(fieldConfig.constructor);
+          _data[fieldname] = config.arrayConstructor(arrayData);
         } else {
-          _data[fieldname] = config.constructor(
+          _data[fieldname] = fieldConfig.constructor(
             isUndefined(_data[fieldname]) ?
-              config.default : _data[fieldname]
+              fieldConfig.default : _data[fieldname]
           );
         }
         result.__defineGetter__(fieldname, function() {
           return result._data[fieldname];
         });
         result.__defineSetter__(fieldname, function(value) {
+          var oldValue = _data[fieldname];
           _data[fieldname] = value;
-          if (globalConfig.changeEvent) {
-            result.onChange.dispatch( fieldname, value);
+          if (config.changeEvent) {
+            result.onChange.dispatch(fieldname, value, oldValue);
           }
         });
       });

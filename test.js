@@ -36,20 +36,50 @@ var foo = fooModel({
 });
 
 tape('Schema', function(t) {
-  t.equal(foo.type, 'typeFoo', 'should allow string properties and set defaults');
-  t.equal(foo.count, 7, 'should allow number properties');
-  t.equal(foo.getPrefixedBar('ATTENTION: '), 'ATTENTION: this is a foo',
-          'should use properties');
-  t.equal(foo.barThing.type, 'typeBar', 'should instantiate sub models');
-  t.equal(foo.barThing.what(), 'this is a bar named "my super bar"',
-          'submodel should be fully instantiated');
-  t.equal(foo.barThingList.length, 3, 'should allow array property');
-  t.equal(foo.barThingList[1].what(), 'this is a bar named "bar2"',
-          'items of array property should be instantiated');
-  foo.onChange.addOnce(function(key, value) {
-    t.equal(key, 'bar');
-    t.equal(value, 'new bar');
+  t.test('# Basics', function(t) {
+    t.equal(foo.type, 'typeFoo', 'should allow string properties and set defaults');
+    t.equal(foo.count, 7, 'should allow number properties');
+    t.equal(foo.getPrefixedBar('ATTENTION: '), 'ATTENTION: this is a foo',
+            'should use properties');
+    t.equal(foo.barThing.type, 'typeBar', 'should instantiate sub models');
+    t.equal(foo.barThing.what(), 'this is a bar named "my super bar"',
+            'submodel should be fully instantiated');
+    t.equal(foo.barThingList.length, 3, 'should allow array property');
+    t.equal(foo.barThingList[1].what(), 'this is a bar named "bar2"',
+            'items of array property should be instantiated');
+    foo.onChange.addOnce(function(key, value, oldValue) {
+      t.ok(true, 'should fire events');
+      t.equal(key, 'bar', 'should deliver changed key');
+      t.equal(value, 'new bar', 'should deliver new value');
+      t.equal(oldValue, 'this is a foo', 'should deliver old value');
+      t.end();
+    });
+    foo.bar = 'new bar';
+  });
+  t.test('# Arrays', function(t) {
+    var schema = Schema({
+      list: ['string']
+    }, {
+      arrayConstructor: function(array) {
+        array.last = function() {
+          return array[array.length -1];
+        };
+        return array;
+      }
+    });
+    var testObj = schema({
+      list: ['haha', 'huhu', 'hoho']
+    });
+    t.equal(testObj.list.last(), 'hoho', 'defined function should be callable');
     t.end();
   });
-  foo.bar = 'new bar';
+  t.test('# Extra properties', function(t) {
+    var schema = Schema({});
+    var testObj = schema({ bar: 'huhu' });
+    t.equal(testObj.bar, undefined, 'bar property shouldn\'t be presend');
+    schema = Schema({}, { extraProperties: true });
+    testObj = schema({ bar: 'huhu' });
+    t.equal(testObj.bar, 'huhu', 'bar property should now be possible');
+    t.end();
+  });
 });
