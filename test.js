@@ -15,7 +15,7 @@ function barThing(name) {
 
 var fooSchema = Schema({
   type: ['string', true, 'typeFoo'],
-  bar: ['string', true, 'gggg'],
+  bar: ['string', true],
   count: ['number', true, 1],
   barThing: barThing,
   barThingList: [barThing],
@@ -55,6 +55,12 @@ tape('Schema', function(t) {
     t.equal(foo.barThingList.length, 3, 'should allow array property');
     t.equal(foo.barThingList[1].what(), 'this is a bar named "bar2"',
             'items of array property should be instantiated');
+    t.throws(function() {
+      fooModel({
+        barThing: 'aa',
+        barThingList: []
+      });
+    }, 'should throw error if data misses a required field');
     foo.onChange.addOnce(function(key, value, oldValue) {
       t.ok(true, 'should fire events');
       t.equal(key, 'bar', 'should deliver changed key');

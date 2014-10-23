@@ -58,8 +58,15 @@ module.exports = function(globalConfig) {
       return {
         isArray: true,
         constructor: getConstructor(config[0]),
-        required: true,
-        default: null
+        required: true
+      };
+    }
+    if (isArray(config) && config.length === 2) {
+      // short syntax without default [type, required]
+      return {
+        isArray: isArray(config[0]) ? true : false,
+        constructor: getConstructor(isArray(config[0]) ? config[0][0] : config[0]),
+        required: config[1]
       };
     }
     if (isArray(config) && config.length === 3) {
@@ -99,12 +106,15 @@ module.exports = function(globalConfig) {
         config.initSignal(result);
       }
 
-      each(fields, function(fieldConfig, fieldname) {
-        fieldConfig = parseConfig(fieldConfig);
+      Object.keys(fields).forEach(function(fieldname) {
+        var fieldConfig = parseConfig(fields[fieldname]);
         if (fieldConfig.isArray) {
           var arrayData = _data[fieldname].map(fieldConfig.constructor);
           _data[fieldname] = config.arrayConstructor(arrayData);
         } else {
+          if (isUndefined(_data[fieldname]) && isUndefined(fieldConfig.default)) {
+            throw Error('No value set for ' + fieldname);
+          }
           _data[fieldname] = fieldConfig.constructor(
             isUndefined(_data[fieldname]) ?
               fieldConfig.default : _data[fieldname]
