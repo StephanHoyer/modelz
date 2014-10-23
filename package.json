@@ -1,0 +1,28 @@
+{
+  "name": "modelz",
+  "version": "0.1.0",
+  "description": "Simple model scheme helper",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/tape/bin/tape test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StephanHoyer/model-schema.git"
+  },
+  "keywords": [
+    "model",
+    "schema",
+    "events"
+  ],
+  "author": "Stephan Hoyer <ste.hoyer@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/StephanHoyer/modelz/issues"
+  },
+  "homepage": "https://github.com/StephanHoyer/modelz",
+  "devDependencies": {
+    "signals": "^1.0.0",
+    "tape": "^3.0.1"
+  }
+}
