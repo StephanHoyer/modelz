@@ -1,5 +1,6 @@
 'use strict';
 
+var Signal = require('signals').Signal;
 var Schema = require('./')();
 var tape = require('tape');
 
@@ -18,6 +19,13 @@ var fooSchema = Schema({
   count: ['number', true, 1],
   barThing: barThing,
   barThingList: [barThing],
+}, {
+  initSignal: function(instance) {
+    instance.onChange = new Signal();
+  },
+  dispatchEvent: function(instance) {
+    return instance.onChange.dispatch;
+  }
 });
 
 function fooModel(foo) {

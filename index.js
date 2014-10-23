@@ -9,7 +9,6 @@ var isUndefined = lodash.isUndefined;
 var isString = lodash.isString;
 var each = lodash.each;
 var clone = lodash.clone;
-var Signal = require('signals').Signal;
 
 function indentity(thing) {
   return thing;
@@ -97,7 +96,7 @@ module.exports = function(globalConfig) {
         result._data = _data;
       }
       if (config.changeEvent) {
-        result.onChange = new Signal();
+        config.initSignal(result);
       }
 
       each(fields, function(fieldConfig, fieldname) {
@@ -118,7 +117,7 @@ module.exports = function(globalConfig) {
           var oldValue = _data[fieldname];
           _data[fieldname] = value;
           if (config.changeEvent) {
-            result.onChange.dispatch(fieldname, value, oldValue);
+            config.dispatchEvent(result)(fieldname, value, oldValue);
           }
         });
       });
