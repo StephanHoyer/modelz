@@ -1,5 +1,7 @@
 'use strict';
 
+function noop() {}
+
 function extend (target, source) {
   target = target || {};
   for (var prop in source) {
@@ -8,11 +10,7 @@ function extend (target, source) {
   return target;
 }
 
-function clone(thing) {
-  return extend({}, thing);
-}
-
-function indentity(thing) {
+function identity(thing) {
   return thing;
 }
 
@@ -36,14 +34,24 @@ function isArray(thing) {
   return Object.prototype.toString.call(thing) === '[object Array]';
 }
 
+function clone(thing) {
+  if (isArray(thing)) {
+    return [].concat(thing);
+  }
+  if (typeof thing === 'object') {
+    return extend({}, thing);
+  }
+  return thing;
+}
+
 module.exports = function(globalConfig) {
   globalConfig = extend({
     castString: true,
     parseNumbers: true,
-    changeEvent: true,
+    onChangeListener: function() { return noop; },
     extraProperties: false,
     embedPlainData: true,
-    arrayConstructor: indentity
+    arrayConstructor: identity,
   }, globalConfig);
 
   function getConstructor(item) {
@@ -51,7 +59,7 @@ module.exports = function(globalConfig) {
       return item;
     }
     if (isString(item)) {
-      return {
+      var constructors = {
         string: function(value) {
           if (isString(value)) {
             return value;
@@ -69,8 +77,21 @@ module.exports = function(globalConfig) {
             return parseFloat(value);
           }
           throw Error('Value ' + value + ' is not a number');
-        }
-      }[item];
+        },
+        array: function(value) {
+          return value;
+        },
+        object: function(value) {
+          return extend({}, value);
+        },
+        date: function(value) {
+          return new Date(value);
+        },
+      };
+      if (isUndefined(constructors[item])) {
+        throw Error(item + ' is not an allowed type.');
+      }
+      return constructors[item];
     }
   }
 
@@ -115,32 +136,53 @@ module.exports = function(globalConfig) {
   return function Schema(fields, config) {
     config = extend(globalConfig, config);
     return function(data) {
-      var _data = clone(data);
-      var result = {};
+      var _data = {};
+      var onChange = noop;
 
+      var result = {};
       if (globalConfig.extraProperties) {
-        result = clone(_data);
+        result = clone(data);
       }
+
       if (config.embedPlainData) {
         result._data = _data;
       }
-      if (config.changeEvent) {
-        config.initSignal(result);
+      if (config.init) {
+        config.init(result);
+      }
+      if (config.onChangeListener) {
+        onChange = config.onChangeListener(result);
       }
 
       Object.keys(fields).forEach(function(fieldname) {
         var fieldConfig = parseConfig(fields[fieldname]);
+        var arrayData;
         if (fieldConfig.isArray) {
-          var arrayData = _data[fieldname].map(fieldConfig.constructor);
-          _data[fieldname] = config.arrayConstructor(arrayData);
-        } else {
-          if (isUndefined(_data[fieldname]) && isUndefined(fieldConfig.default)) {
+          if (fieldConfig.required && isUndefined(data[fieldname]) && isUndefined(fieldConfig.default)) {
             throw Error('No value set for ' + fieldname);
+          } else if (data[fieldname]) {
+            arrayData = data[fieldname].map(fieldConfig.constructor);
+            _data[fieldname] = config.arrayConstructor(arrayData, fieldname);
+          } else if (isUndefined(data[fieldname]) && !isArray(fieldConfig.default)) {
+            throw Error('Default value for ' + fieldname + ' should be an array');
+          } else if (isUndefined(data[fieldname])) {
+            arrayData = fieldConfig.default.map(fieldConfig.constructor);
+            _data[fieldname] = config.arrayConstructor(arrayData, fieldname);
+          } else if (!isArray(data[fieldname])) {
+            console.log(fieldConfig);
+            throw Error('Try to set a non array value ' +
+                        data[fieldname] +
+                        ' to array property ' +
+                        fieldname);
           }
-          _data[fieldname] = fieldConfig.constructor(
-            isUndefined(_data[fieldname]) ?
-              fieldConfig.default : _data[fieldname]
-          );
+        } else {
+          if (fieldConfig.required && isUndefined(data[fieldname]) && isUndefined(fieldConfig.default)) {
+            throw Error('No value set for ' + fieldname);
+          } else if (data[fieldname]) {
+            _data[fieldname] = fieldConfig.constructor(data[fieldname]);
+          } else if (fieldConfig.required) {
+            _data[fieldname] = fieldConfig.constructor(fieldConfig.default);
+          }
         }
         result.__defineGetter__(fieldname, function() {
           return result._data[fieldname];
@@ -148,9 +190,7 @@ module.exports = function(globalConfig) {
         result.__defineSetter__(fieldname, function(value) {
           var oldValue = _data[fieldname];
           _data[fieldname] = value;
-          if (config.changeEvent) {
-            config.dispatchEvent(result)(fieldname, value, oldValue);
-          }
+          onChange(fieldname, value, oldValue);
         });
       });
       return result;

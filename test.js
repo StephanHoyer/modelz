@@ -20,10 +20,10 @@ var fooSchema = Schema({
   barThing: barThing,
   barThingList: [barThing],
 }, {
-  initSignal: function(instance) {
+  init: function(instance) {
     instance.onChange = new Signal();
   },
-  dispatchEvent: function(instance) {
+  onChangeListener: function(instance) {
     return instance.onChange.dispatch;
   }
 });
