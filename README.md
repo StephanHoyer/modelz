@@ -18,7 +18,7 @@ How you can do most things without new/this/prototype you can read [here](https:
 so what's models?
 -----------------
 
-With models, we try to build a `backbone/ampersand`-Model for the upper attempt. No prototypes involved here.
+With *models*, we try to build a `backbone/ampersand`-Model for the upper attempt. No prototypes involved here.
 
 Currenlty it's a minimal approach to have properties with getter/setter, automatic children/collection construction and change-events. It's currenlty 4k unminified code.
 
@@ -46,9 +46,9 @@ var dogSchema = Schema({
 })
 ```
 
-This creates a Schema for a model `foo`. `foo` then will have five properties.
+This creates a Schema for a model `dogModel`. `dogModel` then will have four properties.
 
-To create the model simply
+To create the model simply do:
 
 ```
 function dogModel(foo) {
@@ -60,7 +60,10 @@ function dogModel(foo) {
   
   return foo;
 }
+```
 
+and then create an instance with: 
+```
 lassie = dogModel({
   name: 'Lassie',
   race: {name: 'Collie'},
