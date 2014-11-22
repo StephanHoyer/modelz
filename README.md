@@ -27,16 +27,16 @@ how to install?
 
 Browserify ftw!
 
-```
+```shell
 npm install modelz --save
 ```
 
 how to use?
 -----------
 
-```
+```javascript
 // load function and set global config for it
-var Schema = require('modelz')(/* potential global module config */);
+var Schema = require('modelz')() // <-- potential global module config goes here
 
 var dogSchema = Schema({
   breed: breedModel,
@@ -50,7 +50,7 @@ This creates a Schema for a model `dogModel`. `dogModel` then will have four pro
 
 To create the model simply do:
 
-```
+```javascript
 function dogModel(dog) {
   dog = dogSchema(dog);
   
@@ -63,7 +63,7 @@ function dogModel(dog) {
 ```
 
 and then create an instance with: 
-```
+```javascript
 var lassie = dogModel({
   name: 'Lassie',
   breed: {name: 'Collie'},
