@@ -51,14 +51,14 @@ This creates a Schema for a model `dogModel`. `dogModel` then will have four pro
 To create the model simply do:
 
 ```
-function dogModel(foo) {
-  foo = fooSchema(foo);
+function dogModel(dog) {
+  dog = dogSchema(dog);
   
-  foo.bark = function () {
-    console.log(foo.name + ' barks!');
+  dog.bark = function () {
+    console.log(dog.name + ' barks!');
   }
   
-  return foo;
+  return dog;
 }
 ```
 
