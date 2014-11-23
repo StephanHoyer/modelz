@@ -14,17 +14,24 @@ function barThing(name) {
 }
 
 var fooSchema = Schema({
+  // required string with default
   type: ['string', true, 'typeFoo'],
+  // required number with default
+  baz: 123,
+  // required string without default
   bar: ['string', true],
+  // required number without default
   count: ['number', true, 1],
+  // optional child model without default
   barThing: barThing,
-  barThingList: [barThing],
+  // optional child collection without default
+  barThingList: [barThing]
 }, {
-  init: function(instance) {
-    instance.onChange = new Signal();
+  init: function(foo) {
+    foo.onChange = new Signal();
   },
-  onChangeListener: function(instance) {
-    return instance.onChange.dispatch;
+  onChangeListener: function(foo) {
+    return foo.onChange.dispatch;
   }
 });
 
@@ -44,6 +51,7 @@ var foo = fooModel({
 });
 
 tape('Schema', function(t) {
+
   t.test('# Basics', function(t) {
     t.equal(foo.type, 'typeFoo', 'should allow string properties and set defaults');
     t.equal(foo.count, 7, 'should allow number properties');
@@ -70,6 +78,7 @@ tape('Schema', function(t) {
     });
     foo.bar = 'new bar';
   });
+
   t.test('# Arrays', function(t) {
     var schema = Schema({
       list: ['string']
@@ -87,13 +96,41 @@ tape('Schema', function(t) {
     t.equal(testObj.list.last(), 'hoho', 'defined function should be callable');
     t.end();
   });
+
   t.test('# Extra properties', function(t) {
     var schema = Schema({});
     var testObj = schema({ bar: 'huhu' });
     t.equal(testObj.bar, undefined, 'bar property shouldn\'t be presend');
-    schema = Schema({}, { extraProperties: true });
+    schema = Schema({}, {
+      extraProperties: true
+    });
     testObj = schema({ bar: 'huhu' });
     t.equal(testObj.bar, 'huhu', 'bar property should now be possible');
+    t.end();
+  });
+
+  t.test('# Computed properties', function(t) {
+    var schema = Schema({
+      a: 'string',
+      b: 'string',
+      ab: {
+        cacheKey: ['a', 'b'],
+        get: function(testObj) {
+          return testObj.a + '|' + testObj.b;
+        },
+        set: function(testObj, value) {
+          //ES6 [testObj.a, testObj.b] = value.split('|');
+          value = value.split('|');
+          testObj.a = value[0];
+          testObj.b = value[1];
+        }
+      }
+    });
+    var testObj = schema({ a: 'AA', b: 'BB' });
+    t.equal(testObj.ab, 'AA|BB', 'should have computed property');
+    testObj.ab = 'CC|DD';
+    t.equal(testObj.a, 'CC', 'should be set by computed property');
+    t.equal(testObj.b, 'DD', 'should be set by computed property');
     t.end();
   });
 });

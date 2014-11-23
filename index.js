@@ -14,7 +14,23 @@ function identity(thing) {
   return thing;
 }
 
-function isString(thing) {
+function type(obj) {
+  return {}.toString.call(obj);
+}
+
+function isObject(thing) {
+  return thing !== null && type(thing) === '[object Object]';
+}
+
+function isArray(thing) {
+  return type(thing) == '[object Array]';
+}
+
+function isFunction(thing) {
+  return typeof thing === 'function';
+}
+
+function isString(thing){
   return typeof thing === 'string';
 }
 
@@ -22,16 +38,8 @@ function isNumber(thing) {
   return typeof thing === 'number';
 }
 
-function isFunction(thing) {
-  return typeof thing === 'function';
-}
-
 function isUndefined(thing) {
   return typeof thing === 'undefined';
-}
-
-function isArray(thing) {
-  return Object.prototype.toString.call(thing) === '[object Array]';
 }
 
 function clone(thing) {
@@ -82,7 +90,7 @@ module.exports = function(globalConfig) {
           return value;
         },
         object: function(value) {
-          return extend({}, value);
+          return value;
         },
         date: function(value) {
           return new Date(value);
@@ -131,6 +139,41 @@ module.exports = function(globalConfig) {
         default: null
       };
     }
+    if (isObject(config) && isFunction(config.get)) {
+      // computed property
+      return {
+        get: config.get,
+        set: config.set,
+        isArray: false,
+        constructor: identity,
+        required: false,
+        default: null
+      };
+    }
+    if (isString(config)) {
+      try {
+        // init by type
+        return {
+          isArray: false,
+          constructor: getConstructor(config),
+          required: true,
+          default: null
+        };
+      } catch(e) {
+        // fail silently and try next init
+      }
+    }
+    try {
+      // init by default
+      return {
+        isArray: false,
+        constructor: getConstructor(typeof config),
+        required: true,
+        default: config
+      };
+    } catch(e) {
+      throw new Error('No proper config handler found for config: \n' + JSON.stringify(config));
+    }
   }
 
   return function Schema(fields, config) {
@@ -169,7 +212,6 @@ module.exports = function(globalConfig) {
             arrayData = fieldConfig.default.map(fieldConfig.constructor);
             _data[fieldname] = config.arrayConstructor(arrayData, fieldname);
           } else if (!isArray(data[fieldname])) {
-            console.log(fieldConfig);
             throw Error('Try to set a non array value ' +
                         data[fieldname] +
                         ' to array property ' +
@@ -185,15 +227,23 @@ module.exports = function(globalConfig) {
           }
         }
         result.__defineGetter__(fieldname, function() {
+          if (isFunction(fieldConfig.get)) {
+            return fieldConfig.get(result);
+          }
           return result._data[fieldname];
         });
         result.__defineSetter__(fieldname, function(value) {
           var oldValue = _data[fieldname];
-          _data[fieldname] = value;
+          if (isFunction(fieldConfig.set)) {
+            return fieldConfig.set(result, value);
+          } else {
+            _data[fieldname] = value;
+          }
           onChange(fieldname, value, oldValue);
         });
       });
       return result;
     };
   };
+
 };
