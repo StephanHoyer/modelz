@@ -233,9 +233,9 @@ module.exports = function(globalConfig) {
           return result._data[fieldname];
         });
         result.__defineSetter__(fieldname, function(value) {
-          var oldValue = _data[fieldname];
+          var oldValue = result[fieldname];
           if (isFunction(fieldConfig.set)) {
-            return fieldConfig.set(result, value);
+            fieldConfig.set(result, value);
           } else {
             _data[fieldname] = value;
           }

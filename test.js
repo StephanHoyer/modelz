@@ -55,6 +55,7 @@ tape('Schema', function(t) {
   t.test('# Basics', function(t) {
     t.equal(foo.type, 'typeFoo', 'should allow string properties and set defaults');
     t.equal(foo.count, 7, 'should allow number properties');
+    t.equal(foo.baz, 123, 'should allow definition by default value');
     t.equal(foo.getPrefixedBar('ATTENTION: '), 'ATTENTION: this is a foo',
             'should use properties');
     t.equal(foo.barThing.type, 'typeBar', 'should instantiate sub models');
@@ -110,6 +111,7 @@ tape('Schema', function(t) {
   });
 
   t.test('# Computed properties', function(t) {
+    t.plan(6);
     var schema = Schema({
       a: 'string',
       b: 'string',
@@ -125,12 +127,28 @@ tape('Schema', function(t) {
           testObj.b = value[1];
         }
       }
+    }, {
+      onChangeListener: function(obj) {
+        return function(key, newValue, oldValue) {
+          if (key === 'a') {
+            t.deepEqual([oldValue, newValue], ['AA', 'CC'],
+              'change event on first dependency should be fired');
+          }
+          if (key === 'b') {
+            t.deepEqual([oldValue, newValue], ['BB', 'DD'],
+              'change event on second dependency should be fired');
+          }
+          if (key === 'ab') {
+            t.deepEqual([oldValue, newValue], ['AA|BB', 'CC|DD'],
+              'change event on computed property should be fired');
+          }
+        };
+      }
     });
     var testObj = schema({ a: 'AA', b: 'BB' });
     t.equal(testObj.ab, 'AA|BB', 'should have computed property');
     testObj.ab = 'CC|DD';
-    t.equal(testObj.a, 'CC', 'should be set by computed property');
-    t.equal(testObj.b, 'DD', 'should be set by computed property');
-    t.end();
+    t.equal(testObj.a, 'CC', 'attribute should be set by computed property');
+    t.equal(testObj.b, 'DD', 'attribute should be set by computed property');
   });
 });
