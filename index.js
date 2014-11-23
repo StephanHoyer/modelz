@@ -1,65 +1,22 @@
 'use strict';
 
-function noop() {}
-
-function extend (target, source) {
-  target = target || {};
-  for (var prop in source) {
-    target[prop] = source[prop];
-  }
-  return target;
-}
-
-function identity(thing) {
-  return thing;
-}
-
-function type(obj) {
-  return {}.toString.call(obj);
-}
-
-function isObject(thing) {
-  return thing !== null && type(thing) === '[object Object]';
-}
-
-function isArray(thing) {
-  return type(thing) == '[object Array]';
-}
-
-function isFunction(thing) {
-  return typeof thing === 'function';
-}
-
-function isString(thing){
-  return typeof thing === 'string';
-}
-
-function isNumber(thing) {
-  return typeof thing === 'number';
-}
-
-function isUndefined(thing) {
-  return typeof thing === 'undefined';
-}
-
-function clone(thing) {
-  if (isArray(thing)) {
-    return [].concat(thing);
-  }
-  if (typeof thing === 'object') {
-    return extend({}, thing);
-  }
-  return thing;
-}
+var util = require('./util');
+var isFunction = util.isFunction;
+var isObject = util.isObject;
+var isArray = util.isArray;
+var isString = util.isString;
+var isNumber = util.isNumber;
+var isUndefined = util.isUndefined;
+var noop = util.noop;
 
 module.exports = function(globalConfig) {
-  globalConfig = extend({
+  globalConfig = util.extend({
     castString: true,
     parseNumbers: true,
     onChangeListener: function() { return noop; },
     extraProperties: false,
     embedPlainData: true,
-    arrayConstructor: identity,
+    arrayConstructor: util.identity,
   }, globalConfig);
 
   function getConstructor(item) {
@@ -96,7 +53,7 @@ module.exports = function(globalConfig) {
           return new Date(value);
         },
       };
-      if (isUndefined(constructors[item])) {
+      if (util.isUndefined(constructors[item])) {
         throw Error(item + ' is not an allowed type.');
       }
       return constructors[item];
@@ -145,7 +102,7 @@ module.exports = function(globalConfig) {
         get: config.get,
         set: config.set,
         isArray: false,
-        constructor: identity,
+        constructor: util.identity,
         required: false,
         default: null
       };
@@ -177,14 +134,14 @@ module.exports = function(globalConfig) {
   }
 
   return function Schema(fields, config) {
-    config = extend(globalConfig, config);
+    config = util.extend(globalConfig, config);
     return function(data) {
       var _data = {};
       var onChange = noop;
 
       var result = {};
       if (globalConfig.extraProperties) {
-        result = clone(data);
+        result = util.clone(data);
       }
 
       if (config.embedPlainData) {
