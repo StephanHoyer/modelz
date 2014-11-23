@@ -9,15 +9,23 @@ var isNumber = util.isNumber;
 var isUndefined = util.isUndefined;
 var noop = util.noop;
 
+var defaultFieldConfig = {
+  isArray: false,
+  constructor: util.identity,
+  required: false
+};
+
+var defaultGlobalConfig = {
+  castString: true,
+  parseNumbers: true,
+  onChangeListener: function() { return noop; },
+  extraProperties: false,
+  embedPlainData: true,
+  arrayConstructor: util.identity,
+};
+
 module.exports = function(globalConfig) {
-  globalConfig = util.extend({
-    castString: true,
-    parseNumbers: true,
-    onChangeListener: function() { return noop; },
-    extraProperties: false,
-    embedPlainData: true,
-    arrayConstructor: util.identity,
-  }, globalConfig);
+  globalConfig = util.extend({}, defaultGlobalConfig, globalConfig);
 
   function getConstructor(item) {
     if (isFunction(item)) {
@@ -65,8 +73,7 @@ module.exports = function(globalConfig) {
       // array of things
       return {
         isArray: true,
-        constructor: getConstructor(config[0]),
-        required: true
+        constructor: getConstructor(config[0])
       };
     }
     if (isArray(config) && config.length === 2) {
@@ -90,31 +97,21 @@ module.exports = function(globalConfig) {
     if (isFunction(config)) {
       // plain constructor
       return {
-        isArray: false,
-        constructor: config,
-        required: true,
-        default: null
+        constructor: config
       };
     }
     if (isObject(config) && isFunction(config.get)) {
       // computed property
       return {
         get: config.get,
-        set: config.set,
-        isArray: false,
-        constructor: util.identity,
-        required: false,
-        default: null
+        set: config.set
       };
     }
     if (isString(config)) {
       try {
         // init by type
         return {
-          isArray: false,
           constructor: getConstructor(config),
-          required: true,
-          default: null
         };
       } catch(e) {
         // fail silently and try next init
@@ -123,7 +120,6 @@ module.exports = function(globalConfig) {
     try {
       // init by default
       return {
-        isArray: false,
         constructor: getConstructor(typeof config),
         required: true,
         default: config
@@ -156,6 +152,7 @@ module.exports = function(globalConfig) {
 
       Object.keys(fields).forEach(function(fieldname) {
         var fieldConfig = parseConfig(fields[fieldname]);
+        fieldConfig = util.extend({}, defaultFieldConfig, fieldConfig);
         var arrayData;
         if (fieldConfig.isArray) {
           if (fieldConfig.required && isUndefined(data[fieldname]) && isUndefined(fieldConfig.default)) {
