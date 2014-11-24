@@ -82,7 +82,151 @@ So how does this help me?
 * It constructs sub-models (breed) and sub-collections (friends) (Collections currently are plain JS arrays)
 * It removes data that is not specified in schema
 
-Refer to the tests for all posibilities.
+detail usage
+------------
+
+### defining properties
+
+```javascript
+var Schema = require('modelz')()
+
+var dogSchema = Schema({
+  name: ['string', true], //property definition
+})
+```
+
+There a differnet ways to define a property:
+
+#### type as string
+
+Example: `name: 'string'`
+
+Property is optional and has no default value. Types can be
+* `string`
+* `number`
+* `date`
+
+
+#### Array without default
+
+Example: `name: ['string', true]`
+
+Property is a string, required and has no default value. This is also possible
+with constructor function.
+
+#### Array with default
+
+Example: `name: ['string', true, 'no name']`
+
+Property is a string, required and has `'no name'` as default value. This is
+also possible with constructor function.
+
+#### default single value
+
+Example: `name: 'no name'`
+
+Property is a string, required and has `'no name'` as default value. This is
+only possible with primitive types (`string`, `number`, `date`).
+
+### init-Hooks
+
+Example:
+```javascript
+var userSchema = Schema({
+  // fields definition
+}, {
+  preInit: function(user) {
+    // do some stuff before getter/setter are aplied
+    user.onChange = new Signal();
+    return user; // always return the instance!!
+  },
+  postInit: function(user) {
+    // do some stuff after getter/setter are aplied
+    return user; // always return the instance!!
+  }
+}
+```
+
+This can be used to e. G. add a change listeners to all instances upon
+construction (see `test.js`).
+
+### onChangeListener-Hook
+
+```javascript
+var userSchema = Schema({
+  // fields definition
+}, {
+  onChangeListener: function(user) {
+    return user.onChange.dispatch;
+  }
+}
+```
+
+The listener should return a function that will be called, when an attribute on
+the instance changes for whatever reason. The signature of this function is
+
+```javascript
+function(attributeKey, newValue, oldValue) {
+  // do, what's required to do here.
+}
+```
+
+see `test.js`
+
+### children models
+
+Example: `user: createUser`
+
+Property is an object. All data that is passed under the users key on
+initialization is passed to the `createUser` function. The result is returned
+and stored at the key `user` of the instance.
+
+### children collections
+
+Example: `tags: ['string']`
+
+Property will be a collection of strings. This is also possible with constructor
+functions. It expects an array of object as input value on the `users`-property
+on the input-object. It runs the constructor-function on each of the object and
+stores the result on the `users`-property of the instance:
+
+Example: `users: [createUser]`
+
+This also can be combined with all the above versions:
+
+Example: `users: [[createUser], true, []]`
+
+### computed properties
+
+```javascript
+var schema = Schema({
+  a: 'string',
+  b: 'string',
+  ab: {
+    get: function(testObj) {
+      return testObj.a + '|' + testObj.b;
+    },
+    set: function(testObj, value) {
+      value = value.split('|');
+      testObj.a = value[0];
+      testObj.b = value[1];
+    }
+  }
+});
+
+var test = schema({
+  a: 'foo',
+  b: 'bar'
+})
+
+assert(test.ab, 'foo|bar');
+```
+
+It creates a computed property on the instance. Getter is always required,
+setter is optional.
+
+In a future version the result will be cached. Currently it computes it on
+every `get`.
 
 Roadmap
 -------

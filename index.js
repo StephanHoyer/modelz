@@ -22,6 +22,8 @@ var defaultGlobalConfig = {
   extraProperties: false,
   embedPlainData: true,
   arrayConstructor: util.identity,
+  preInit: util.identity,
+  postInit: util.identity
 };
 
 module.exports = function(globalConfig) {
@@ -143,12 +145,8 @@ module.exports = function(globalConfig) {
       if (config.embedPlainData) {
         result._data = _data;
       }
-      if (config.init) {
-        config.init(result);
-      }
-      if (config.onChangeListener) {
-        onChange = config.onChangeListener(result);
-      }
+      result = config.preInit(result);
+      onChange = config.onChangeListener(result);
 
       Object.keys(fields).forEach(function(fieldname) {
         var fieldConfig = parseConfig(fields[fieldname]);
@@ -196,7 +194,7 @@ module.exports = function(globalConfig) {
           onChange(fieldname, value, oldValue);
         });
       });
-      return result;
+      return config.postInit(result);
     };
   };
 

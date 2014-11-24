@@ -27,8 +27,9 @@ var fooSchema = Schema({
   // optional child collection without default
   barThingList: [barThing]
 }, {
-  init: function(foo) {
+  preInit: function(foo) {
     foo.onChange = new Signal();
+    return foo;
   },
   onChangeListener: function(foo) {
     return foo.onChange.dispatch;
