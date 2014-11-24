@@ -181,16 +181,18 @@ Property is an object. All data that is passed under the users key on
 initialization is passed to the `createUser` function. The result is returned
 and stored at the key `user` of the instance.
 
-### children collections
+### arrays and children collections
 
 Example: `tags: ['string']`
 
 Property will be a collection of strings. This is also possible with constructor
-functions. It expects an array of object as input value on the `users`-property
-on the input-object. It runs the constructor-function on each of the object and
-stores the result on the `users`-property of the instance:
+functions. 
 
 Example: `users: [createUser]`
+
+It expects an array of objects as input value on the `users`-property
+on the input-object. It runs the constructor-function on each of the object and
+stores the result on the `users`-property of the instance:
 
 This also can be combined with all the above versions:
 
