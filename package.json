@@ -1,6 +1,6 @@
 {
   "name": "modelz",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Simple model scheme helper",
   "main": "index.js",
   "scripts": {
