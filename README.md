@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/StephanHoyer/modelz.svg?branch=master)](https://travis-ci.org/StephanHoyer/modelz)
+
 model-schema
 ============
 
