@@ -138,7 +138,7 @@ module.exports = function(globalConfig) {
       var onChange = noop;
 
       var result = {};
-      if (globalConfig.extraProperties) {
+      if (config.extraProperties) {
         result = util.clone(data);
       }
 
