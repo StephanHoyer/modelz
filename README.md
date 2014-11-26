@@ -17,12 +17,12 @@ Turns out that you can leave these clunky parts out and still have an awesome la
 
 How you can do most things without new/this/prototype you can read [here](https://gist.github.com/StephanHoyer/3f0ecd395c24cc2e142f).
 
-so what's models?
+so what's modelz?
 -----------------
 
-With *models*, we try to build a `backbone/ampersand`-Model for the upper attempt. No prototypes involved here.
+With *modelz*, we try to build a `backbone/ampersand`-Model for the upper attempt. No prototypes involved here.
 
-Currenlty it's a minimal approach to have properties with getter/setter, automatic children/collection construction and change-events. It's currenlty 2.5k minified (not gziped) code.
+Currently it's a minimal approach to have properties with getter/setter, automatic children/collection construction and change-events.
 
 how to install?
 ---------------
