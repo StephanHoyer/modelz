@@ -13,6 +13,8 @@ javascript is broken!
 we can fix this!
 ----------------
 
+![you shall not use this](https://i.imgflip.com/emrmv.jpg)
+
 Turns out that you can leave these clunky parts out and still have an awesome language. Just use the functional part and the plain objects. Even [Douglas Crockfort](http://www.ustream.tv/recorded/46640057) thinks this way!
 
 How you can do most things without new/this/prototype you can read [here](https://gist.github.com/StephanHoyer/3f0ecd395c24cc2e142f).
