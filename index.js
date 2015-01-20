@@ -156,6 +156,9 @@ module.exports = function(globalConfig) {
           if (fieldConfig.required && isUndefined(data[fieldname]) && isUndefined(fieldConfig.default)) {
             throw Error('No value set for ' + fieldname);
           } else if (data[fieldname]) {
+            if (!isArray(data[fieldname])) {
+              throw new Error('Field ' + fieldname + ' should be an Array.');
+            }
             arrayData = data[fieldname].map(fieldConfig.constructor);
             _data[fieldname] = config.arrayConstructor(arrayData, fieldname);
           } else if (isUndefined(data[fieldname]) && !isArray(fieldConfig.default)) {
