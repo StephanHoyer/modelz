@@ -53,6 +53,9 @@ module.exports = function(globalConfig) {
           }
           throw Error('Value ' + value + ' is not a number');
         },
+        boolean: function(value) {
+          return !!value;
+        },
         array: function(value) {
           return value;
         },
