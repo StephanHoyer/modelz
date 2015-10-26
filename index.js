@@ -1,5 +1,6 @@
 'use strict';
 
+var assign = require('object-assign');
 var util = require('./util');
 var isFunction = util.isFunction;
 var isObject = util.isObject;
@@ -57,10 +58,10 @@ module.exports = function(globalConfig) {
           return !!value;
         },
         array: function(value) {
-          return value;
+          return [].concat(value);
         },
         object: function(value) {
-          return value;
+          return assign({}, value);
         },
         date: function(value) {
           return new Date(value);
@@ -137,6 +138,7 @@ module.exports = function(globalConfig) {
   return function Schema(fields, config) {
     config = util.extend(globalConfig, config);
     return function(data) {
+      data = data || {};
       var _data = {};
       var onChange = noop;
 

@@ -99,6 +99,22 @@ tape('Schema', function(t) {
     t.end();
   });
 
+  t.test('# Defaults for complex types', function(t) {
+    var schema = Schema({
+      // default arrays
+      arrayProp: ['array', true, ['foo']],
+      // default objects
+      objProp: ['object', true, {bar: 'foo'}]
+    });
+    var first = schema();
+    var second = schema();
+    first.arrayProp.push('bar');
+    first.objProp.baz = 'foz';
+    t.deepEqual(second.arrayProp, ['foo']);
+    t.deepEqual(second.objProp, {bar: 'foo'});
+    t.end();
+  });
+
   t.test('# Extra properties', function(t) {
     var schema = Schema({});
     var testObj = schema({ bar: 'huhu' });
