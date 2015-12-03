@@ -6,24 +6,7 @@ modelz
 
 Simple model scheme helper
 
-javascript is broken!
----------------------
-
-... not all of it. In fact most of it is quite awesome. But let's face it: `this` and `prototype` are not so well solved. The dynamic this context leads to great flexibilty but also to either bugs or verbose binding-call-apply-orgies.
-
-we can fix this!
-----------------
-
-![you shall not use this](https://i.imgflip.com/emrmv.jpg)
-
-Turns out that you can leave these clunky parts out and still have an awesome language. Just use the functional part and the plain objects. Even [Douglas Crockfort](http://www.ustream.tv/recorded/46640057) thinks this way!
-
-How you can do most things without new/this/prototype you can read [here](https://gist.github.com/StephanHoyer/3f0ecd395c24cc2e142f).
-
-so what's modelz?
------------------
-
-With *modelz*, we try to build a `backbone/ampersand`-Model for the upper attempt. No prototypes involved here.
+With *modelz*, we try to build a `backbone/ampersand`-Model in a new way. No prototypes involved here.
 
 Currently it's a minimal approach to have properties with getter/setter, automatic children/collection construction and change-events.
 
