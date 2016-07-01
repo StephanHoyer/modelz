@@ -18,6 +18,7 @@ var fooSchema = Schema({
   type: ['string', true, 'typeFoo'],
   // required number with default
   baz: 123,
+  numberWithoutDefault: 'number',
   // required string without default
   bar: ['string', true],
   // required number without default
@@ -46,6 +47,7 @@ function fooModel(foo) {
 
 var foo = fooModel({
   bar: 'this is a foo',
+  numberWithoutDefault: 0,
   count: 7,
   barThing: 'my super bar',
   barThingList: ['bar1', 'bar2', 'bar3']
@@ -57,6 +59,7 @@ tape('Schema', function(t) {
     t.equal(foo.type, 'typeFoo', 'should allow string properties and set defaults');
     t.equal(foo.count, 7, 'should allow number properties');
     t.equal(foo.baz, 123, 'should allow definition by default value');
+    t.equal(foo.numberWithoutDefault, 0, 'should allow to even set falsy values');
     t.equal(foo.getPrefixedBar('ATTENTION: '), 'ATTENTION: this is a foo',
             'should use properties');
     t.equal(foo.barThing.type, 'typeBar', 'should instantiate sub models');

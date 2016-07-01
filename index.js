@@ -180,7 +180,7 @@ module.exports = function(globalConfig) {
         } else {
           if (fieldConfig.required && isUndefined(data[fieldname]) && isUndefined(fieldConfig.default)) {
             throw Error('No value set for ' + fieldname);
-          } else if (data[fieldname]) {
+          } else if (!isUndefined(data[fieldname])) {
             _data[fieldname] = fieldConfig.constructor(data[fieldname]);
           } else if (fieldConfig.required) {
             _data[fieldname] = fieldConfig.constructor(fieldConfig.default);
