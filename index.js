@@ -30,7 +30,7 @@ var defaultGlobalConfig = {
 module.exports = function(globalConfig) {
   globalConfig = util.extend({}, defaultGlobalConfig, globalConfig);
 
-  function getConstructor(item) {
+  function getConstructor(item, fieldname) {
     if (isFunction(item)) {
       return item;
     }
@@ -43,7 +43,7 @@ module.exports = function(globalConfig) {
           if (globalConfig.castString) {
             return '' + value;
           }
-          throw Error('Value "' + value + '" is not a string');
+          throw Error('Expect a string for "' + fieldname + '", got "' + value + '"');
         },
         number: function(value) {
           if (isNumber(value)) {
@@ -52,7 +52,7 @@ module.exports = function(globalConfig) {
           if (isString(value) && globalConfig.parseNumbers) {
             return parseFloat(value);
           }
-          throw Error('Value ' + value + ' is not a number');
+          throw Error('Expect a number for "' + fieldname + '", got "' + value + '"');
         },
         boolean: function(value) {
           return !!value;
@@ -68,25 +68,25 @@ module.exports = function(globalConfig) {
         },
       };
       if (util.isUndefined(constructors[item])) {
-        throw Error(item + ' is not an allowed type.');
+        throw Error('Try to use unknown type "' + item + '" as type for ' + fieldname + '"');
       }
       return constructors[item];
     }
   }
 
-  function parseConfig(config) {
+  function parseConfig(config, fieldname) {
     if (isArray(config) && config.length === 1) {
       // array of things
       return {
         isArray: true,
-        constructor: getConstructor(config[0])
+        constructor: getConstructor(config[0], fieldname)
       };
     }
     if (isArray(config) && config.length === 2) {
       // short syntax without default [type, required]
       return {
         isArray: isArray(config[0]) ? true : false,
-        constructor: getConstructor(isArray(config[0]) ? config[0][0] : config[0]),
+        constructor: getConstructor(isArray(config[0]) ? config[0][0] : config[0], fieldname),
         required: config[1]
       };
     }
@@ -95,7 +95,7 @@ module.exports = function(globalConfig) {
       // or even [[type], required, default]
       return {
         isArray: isArray(config[0]) ? true : false,
-        constructor: getConstructor(isArray(config[0]) ? config[0][0] : config[0]),
+        constructor: getConstructor(isArray(config[0]) ? config[0][0] : config[0], fieldname),
         required: config[1],
         default: config[2]
       };
@@ -117,7 +117,7 @@ module.exports = function(globalConfig) {
       try {
         // init by type
         return {
-          constructor: getConstructor(config),
+          constructor: getConstructor(config, fieldname),
         };
       } catch(e) {
         // fail silently and try next init
@@ -126,7 +126,7 @@ module.exports = function(globalConfig) {
     try {
       // init by default
       return {
-        constructor: getConstructor(typeof config),
+        constructor: getConstructor(typeof config, fieldname),
         required: true,
         default: config
       };
@@ -154,7 +154,7 @@ module.exports = function(globalConfig) {
       onChange = config.onChangeListener(result);
 
       Object.keys(fields).forEach(function(fieldname) {
-        var fieldConfig = parseConfig(fields[fieldname]);
+        var fieldConfig = parseConfig(fields[fieldname], fieldname);
         fieldConfig = util.extend({}, defaultFieldConfig, fieldConfig);
         var arrayData;
         if (fieldConfig.isArray) {
@@ -178,9 +178,9 @@ module.exports = function(globalConfig) {
                         fieldname);
           }
         } else {
-          if (fieldConfig.required && isUndefined(data[fieldname]) && isUndefined(fieldConfig.default)) {
+          if (fieldConfig.required && data[fieldname] == null && fieldConfig.default == null) {
             throw Error('No value set for ' + fieldname);
-          } else if (!isUndefined(data[fieldname])) {
+          } else if (data[fieldname] != null) {
             _data[fieldname] = fieldConfig.constructor(data[fieldname]);
           } else if (fieldConfig.required) {
             _data[fieldname] = fieldConfig.constructor(fieldConfig.default);
