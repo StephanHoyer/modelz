@@ -178,7 +178,7 @@ module.exports = function(globalConfig) {
                         fieldname);
           }
         } else {
-          if (fieldConfig.required && data[fieldname] == null && fieldConfig.default == null) {
+          if (fieldConfig.required && data[fieldname] == null && isUndefined(fieldConfig.default)) {
             throw Error('No value set for ' + fieldname);
           } else if (data[fieldname] != null) {
             _data[fieldname] = fieldConfig.constructor(data[fieldname]);
