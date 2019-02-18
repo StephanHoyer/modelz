@@ -1,6 +1,5 @@
 'use strict'
 
-var assign = require('object-assign')
 var util = require('./util')
 var isFunction = util.isFunction
 var isObject = util.isObject
@@ -67,7 +66,7 @@ module.exports = function(globalConfig) {
           return [].concat(value)
         },
         object: function(value) {
-          return assign({}, value)
+          return Object.assign({}, value)
         },
         date: function(value) {
           return new Date(value)

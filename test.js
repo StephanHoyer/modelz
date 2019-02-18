@@ -1,6 +1,5 @@
 'use strict'
 
-var Signal = require('signals').Signal
 var Schema = require('./')()
 var tape = require('tape')
 
@@ -32,11 +31,11 @@ var fooSchema = Schema(
   },
   {
     preInit: function(foo) {
-      foo.onChange = new Signal()
+      foo.onChange = () => {}
       return foo
     },
     onChangeListener: function(foo) {
-      return foo.onChange.dispatch
+      return (...args) => foo.onChange(...args)
     },
   }
 )
@@ -100,13 +99,13 @@ tape('Schema', function(t) {
         barThingList: [],
       })
     }, 'should throw error if data misses a required field')
-    foo.onChange.addOnce(function(key, value, oldValue) {
+    foo.onChange = function(key, value, oldValue) {
       t.ok(true, 'should fire events')
       t.equal(key, 'bar', 'should deliver changed key')
       t.equal(value, 'new bar', 'should deliver new value')
       t.equal(oldValue, 'this is a foo', 'should deliver old value')
       t.end()
-    })
+    }
     foo.bar = 'new bar'
   })
 
