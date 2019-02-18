@@ -149,8 +149,7 @@ module.exports = function(globalConfig) {
 
   return function Schema(fields, config) {
     config = Object.assign(globalConfig, config)
-    return function(data) {
-      data = data || {}
+    return function construct(data = {}) {
       const _data = {}
       let onChange = noop
 
@@ -165,7 +164,10 @@ module.exports = function(globalConfig) {
       result = config.preInit(result)
       onChange = config.onChangeListener(result)
 
-      Object.keys(fields).forEach(function(fieldname) {
+      for (const fieldname in fields) {
+        if (!fields.hasOwnProperty(fieldname)) {
+          continue
+        }
         let fieldConfig = parseConfig(fields[fieldname], fieldname)
         fieldConfig = Object.assign({}, defaultFieldConfig, fieldConfig)
         if (
@@ -179,22 +181,24 @@ module.exports = function(globalConfig) {
         } else if (fieldConfig.required) {
           _data[fieldname] = fieldConfig.constructor(fieldConfig.default)
         }
-        result.__defineGetter__(fieldname, function() {
-          if (isFunction(fieldConfig.get)) {
-            return fieldConfig.get(result)
-          }
-          return result._data[fieldname]
+        Object.defineProperty(result, fieldname, {
+          get: function() {
+            if (isFunction(fieldConfig.get)) {
+              return fieldConfig.get(result)
+            }
+            return result._data[fieldname]
+          },
+          set: function(value) {
+            const oldValue = result[fieldname]
+            if (isFunction(fieldConfig.set)) {
+              fieldConfig.set(result, value)
+            } else {
+              _data[fieldname] = value
+            }
+            onChange(fieldname, value, oldValue)
+          },
         })
-        result.__defineSetter__(fieldname, function(value) {
-          const oldValue = result[fieldname]
-          if (isFunction(fieldConfig.set)) {
-            fieldConfig.set(result, value)
-          } else {
-            _data[fieldname] = value
-          }
-          onChange(fieldname, value, oldValue)
-        })
-      })
+      }
       return config.postInit(result)
     }
   }
