@@ -1,7 +1,7 @@
 'use strict'
 
-var Schema = require('./')()
-var tape = require('tape')
+const Schema = require('./')()
+const tape = require('tape')
 
 function barThing(name) {
   return {
@@ -12,7 +12,7 @@ function barThing(name) {
   }
 }
 
-var fooSchema = Schema(
+const fooSchema = Schema(
   {
     // required string with default
     type: ['string', true, 'typeFoo'],
@@ -48,7 +48,7 @@ function fooModel(foo) {
   return foo
 }
 
-var foo = fooModel({
+const foo = fooModel({
   bar: 'this is a foo',
   numberWithoutDefault: 0,
   stringWithoutDefault: '',
@@ -110,7 +110,7 @@ tape('Schema', function(t) {
   })
 
   t.test('# Arrays', function(t) {
-    var schema = Schema(
+    const schema = Schema(
       {
         list: ['string'],
       },
@@ -123,7 +123,7 @@ tape('Schema', function(t) {
         },
       }
     )
-    var testObj = schema({
+    const testObj = schema({
       list: ['haha', 'huhu', 'hoho'],
     })
     t.equal(testObj.list.last(), 'hoho', 'defined function should be callable')
@@ -131,14 +131,14 @@ tape('Schema', function(t) {
   })
 
   t.test('# Defaults for complex types', function(t) {
-    var schema = Schema({
+    const schema = Schema({
       // default arrays
       arrayProp: ['array', true, ['foo']],
       // default objects
       objProp: ['object', true, { bar: 'foo' }],
     })
-    var first = schema()
-    var second = schema()
+    const first = schema()
+    const second = schema()
     first.arrayProp.push('bar')
     first.objProp.baz = 'foz'
     t.deepEqual(second.arrayProp, ['foo'])
@@ -147,8 +147,8 @@ tape('Schema', function(t) {
   })
 
   t.test('# Extra properties', function(t) {
-    var schema = Schema({})
-    var testObj = schema({ bar: 'huhu' })
+    let schema = Schema({})
+    let testObj = schema({ bar: 'huhu' })
     t.equal(testObj.bar, undefined, 'bar property shouldn\'t be presend')
     schema = Schema(
       {},
@@ -163,7 +163,7 @@ tape('Schema', function(t) {
 
   t.test('# Computed properties', function(t) {
     t.plan(6)
-    var schema = Schema(
+    const schema = Schema(
       {
         a: 'string',
         b: 'string',
@@ -208,7 +208,7 @@ tape('Schema', function(t) {
         },
       }
     )
-    var testObj = schema({ a: 'AA', b: 'BB' })
+    const testObj = schema({ a: 'AA', b: 'BB' })
     t.equal(testObj.ab, 'AA|BB', 'should have computed property')
     testObj.ab = 'CC|DD'
     t.equal(testObj.a, 'CC', 'attribute should be set by computed property')

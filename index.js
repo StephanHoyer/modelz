@@ -1,21 +1,24 @@
 'use strict'
 
-var util = require('./util')
-var isFunction = util.isFunction
-var isObject = util.isObject
-var isArray = util.isArray
-var isString = util.isString
-var isNumber = util.isNumber
-var isUndefined = util.isUndefined
-var noop = util.noop
+const {
+  clone,
+  identity,
+  isArray,
+  isFunction,
+  isNumber,
+  isObject,
+  isString,
+  isUndefined,
+  noop,
+} = require('./util')
 
-var defaultFieldConfig = {
+const defaultFieldConfig = {
   isArray: false,
-  constructor: util.identity,
+  constructor: identity,
   required: false,
 }
 
-var defaultGlobalConfig = {
+const defaultGlobalConfig = {
   castString: true,
   parseNumbers: true,
   onChangeListener: function() {
@@ -23,20 +26,20 @@ var defaultGlobalConfig = {
   },
   extraProperties: false,
   embedPlainData: true,
-  arrayConstructor: util.identity,
-  preInit: util.identity,
-  postInit: util.identity,
+  arrayConstructor: identity,
+  preInit: identity,
+  postInit: identity,
 }
 
 module.exports = function(globalConfig) {
-  globalConfig = util.extend({}, defaultGlobalConfig, globalConfig)
+  globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig)
 
   function getConstructor(item, fieldname) {
     if (isFunction(item)) {
       return item
     }
     if (isString(item)) {
-      var constructors = {
+      const constructors = {
         string: function(value) {
           if (isString(value)) {
             return value
@@ -72,7 +75,7 @@ module.exports = function(globalConfig) {
           return new Date(value)
         },
       }
-      if (util.isUndefined(constructors[item])) {
+      if (isUndefined(constructors[item])) {
         throw Error(
           'Try to use unknown type "' +
             item +
@@ -155,15 +158,15 @@ module.exports = function(globalConfig) {
   }
 
   return function Schema(fields, config) {
-    config = util.extend(globalConfig, config)
+    config = Object.assign(globalConfig, config)
     return function(data) {
       data = data || {}
-      var _data = {}
-      var onChange = noop
+      const _data = {}
+      let onChange = noop
 
-      var result = {}
+      let result = {}
       if (config.extraProperties) {
-        result = util.clone(data)
+        result = clone(data)
       }
 
       if (config.embedPlainData) {
@@ -173,9 +176,9 @@ module.exports = function(globalConfig) {
       onChange = config.onChangeListener(result)
 
       Object.keys(fields).forEach(function(fieldname) {
-        var fieldConfig = parseConfig(fields[fieldname], fieldname)
-        fieldConfig = util.extend({}, defaultFieldConfig, fieldConfig)
-        var arrayData
+        let fieldConfig = parseConfig(fields[fieldname], fieldname)
+        fieldConfig = Object.assign({}, defaultFieldConfig, fieldConfig)
+        let arrayData
         if (fieldConfig.isArray) {
           if (
             fieldConfig.required &&
@@ -227,7 +230,7 @@ module.exports = function(globalConfig) {
           return result._data[fieldname]
         })
         result.__defineSetter__(fieldname, function(value) {
-          var oldValue = result[fieldname]
+          const oldValue = result[fieldname]
           if (isFunction(fieldConfig.set)) {
             fieldConfig.set(result, value)
           } else {

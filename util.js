@@ -2,19 +2,6 @@
 
 function noop() {}
 
-function extend(target, source, source2) {
-  target = target || {}
-  for (var prop in source) {
-    target[prop] = source[prop]
-  }
-  if (source2) {
-    for (prop in source2) {
-      target[prop] = source2[prop]
-    }
-  }
-  return target
-}
-
 function identity(thing) {
   return thing
 }
@@ -49,10 +36,10 @@ function isUndefined(thing) {
 
 function clone(thing) {
   if (isArray(thing)) {
-    return [].concat(thing)
+    return [].concat(thing.map(clone))
   }
   if (typeof thing === 'object') {
-    return extend({}, thing)
+    return Object.assign({}, thing)
   }
   return thing
 }
@@ -66,6 +53,5 @@ module.exports = {
   isArray: isArray,
   isObject: isObject,
   identity: identity,
-  extend: extend,
   noop: noop,
 }
