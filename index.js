@@ -13,7 +13,6 @@ const {
 } = require('./util')
 
 const defaultFieldConfig = {
-  isArray: false,
   constructor: identity,
   required: false,
 }
@@ -26,7 +25,6 @@ const defaultGlobalConfig = {
   },
   extraProperties: false,
   embedPlainData: true,
-  arrayConstructor: identity,
   preInit: identity,
   postInit: identity,
 }
@@ -92,32 +90,24 @@ module.exports = function(globalConfig) {
     if (isArray(config) && config.length === 1) {
       // array of things
       return {
-        isArray: true,
         constructor: getConstructor(config[0], fieldname),
       }
     }
     if (isArray(config) && config.length === 2) {
       // short syntax without default [type, required]
+      const [type, required] = config
       return {
-        isArray: isArray(config[0]) ? true : false,
-        constructor: getConstructor(
-          isArray(config[0]) ? config[0][0] : config[0],
-          fieldname
-        ),
-        required: config[1],
+        constructor: getConstructor(type),
+        required,
       }
     }
     if (isArray(config) && config.length === 3) {
       // short syntax [type, required, default]
-      // or even [[type], required, default]
+      const [type, required, defaultValue] = config
       return {
-        isArray: isArray(config[0]) ? true : false,
-        constructor: getConstructor(
-          isArray(config[0]) ? config[0][0] : config[0],
-          fieldname
-        ),
-        required: config[1],
-        default: config[2],
+        constructor: getConstructor(type),
+        required,
+        default: defaultValue,
       }
     }
     if (isFunction(config)) {
@@ -178,50 +168,16 @@ module.exports = function(globalConfig) {
       Object.keys(fields).forEach(function(fieldname) {
         let fieldConfig = parseConfig(fields[fieldname], fieldname)
         fieldConfig = Object.assign({}, defaultFieldConfig, fieldConfig)
-        let arrayData
-        if (fieldConfig.isArray) {
-          if (
-            fieldConfig.required &&
-            isUndefined(data[fieldname]) &&
-            isUndefined(fieldConfig.default)
-          ) {
-            throw Error('No value set for ' + fieldname)
-          } else if (data[fieldname]) {
-            if (!isArray(data[fieldname])) {
-              throw new Error('Field ' + fieldname + ' should be an Array.')
-            }
-            arrayData = data[fieldname].map(fieldConfig.constructor)
-            _data[fieldname] = config.arrayConstructor(arrayData, fieldname)
-          } else if (
-            isUndefined(data[fieldname]) &&
-            !isArray(fieldConfig.default)
-          ) {
-            throw Error(
-              'Default value for ' + fieldname + ' should be an array'
-            )
-          } else if (isUndefined(data[fieldname])) {
-            arrayData = fieldConfig.default.map(fieldConfig.constructor)
-            _data[fieldname] = config.arrayConstructor(arrayData, fieldname)
-          } else if (!isArray(data[fieldname])) {
-            throw Error(
-              'Try to set a non array value ' +
-                data[fieldname] +
-                ' to array property ' +
-                fieldname
-            )
-          }
-        } else {
-          if (
-            fieldConfig.required &&
-            data[fieldname] == null &&
-            isUndefined(fieldConfig.default)
-          ) {
-            throw Error('No value set for ' + fieldname)
-          } else if (data[fieldname] != null) {
-            _data[fieldname] = fieldConfig.constructor(data[fieldname])
-          } else if (fieldConfig.required) {
-            _data[fieldname] = fieldConfig.constructor(fieldConfig.default)
-          }
+        if (
+          fieldConfig.required &&
+          data[fieldname] == null &&
+          isUndefined(fieldConfig.default)
+        ) {
+          throw Error('No value set for ' + fieldname)
+        } else if (data[fieldname] != null) {
+          _data[fieldname] = fieldConfig.constructor(data[fieldname])
+        } else if (fieldConfig.required) {
+          _data[fieldname] = fieldConfig.constructor(fieldConfig.default)
         }
         result.__defineGetter__(fieldname, function() {
           if (isFunction(fieldConfig.get)) {

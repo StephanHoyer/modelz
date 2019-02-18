@@ -12,6 +12,12 @@ function barThing(name) {
   }
 }
 
+function collection(type) {
+  return function(arr) {
+    return [].concat(arr.map(type))
+  }
+}
+
 const fooSchema = Schema(
   {
     // required string with default
@@ -27,7 +33,7 @@ const fooSchema = Schema(
     // optional child model without default
     barThing: barThing,
     // optional child collection without default
-    barThingList: [barThing],
+    barThingList: collection(barThing),
   },
   {
     preInit: function(foo) {
@@ -109,23 +115,21 @@ tape('Schema', function(t) {
     foo.bar = 'new bar'
   })
 
-  t.test('# Arrays', function(t) {
-    const schema = Schema(
-      {
-        list: ['string'],
-      },
-      {
-        arrayConstructor: function(array) {
-          array.last = function() {
-            return array[array.length - 1]
-          }
-          return array
-        },
-      }
-    )
+  t.test('# Arrays/Collections', function(t) {
+    const stringCollection = function(strings) {
+      const arr = [].concat(strings.map(a => a.toString()))
+      arr.last = () => arr[arr.length - 1]
+      return arr
+    }
+
+    const schema = Schema({
+      list: stringCollection,
+    })
+
     const testObj = schema({
       list: ['haha', 'huhu', 'hoho'],
     })
+
     t.equal(testObj.list.last(), 'hoho', 'defined function should be callable')
     t.end()
   })
