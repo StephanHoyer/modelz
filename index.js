@@ -182,6 +182,7 @@ module.exports = function(globalConfig) {
           _data[fieldname] = fieldConfig.constructor(fieldConfig.default)
         }
         Object.defineProperty(result, fieldname, {
+          enumerable: !isFunction(fieldConfig.get),
           get: function() {
             if (isFunction(fieldConfig.get)) {
               return fieldConfig.get(result)
