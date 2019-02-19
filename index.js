@@ -179,7 +179,10 @@ module.exports = function(globalConfig) {
         } else if (data[fieldname] != null) {
           _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
         } else if (fieldConfig.required) {
-          _data[fieldname] = fieldConfig.constructor(fieldConfig.default)
+          _data[fieldname] = fieldConfig.constructor(
+            fieldConfig.default,
+            result
+          )
         }
         Object.defineProperty(result, fieldname, {
           enumerable: !isFunction(fieldConfig.get),
