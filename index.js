@@ -177,7 +177,7 @@ module.exports = function(globalConfig) {
         ) {
           throw Error('No value set for ' + fieldname)
         } else if (data[fieldname] != null) {
-          _data[fieldname] = fieldConfig.constructor(data[fieldname])
+          _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
         } else if (fieldConfig.required) {
           _data[fieldname] = fieldConfig.constructor(fieldConfig.default)
         }
