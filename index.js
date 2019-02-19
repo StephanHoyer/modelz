@@ -27,63 +27,61 @@ const defaultGlobalConfig = {
   embedPlainData: true,
   preInit: identity,
   postInit: identity,
+  types: {},
 }
 
 module.exports = function(globalConfig) {
   globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig)
+  const constructors = Object.assign(
+    {
+      string(value) {
+        if (isString(value)) {
+          return value
+        }
+        if (globalConfig.castString) {
+          return '' + value
+        }
+        throw Error(
+          'Expect a string for "' + fieldname + '", got "' + value + '"'
+        )
+      },
+      number(value) {
+        if (isNumber(value)) {
+          return value
+        }
+        if (isString(value) && globalConfig.parseNumbers) {
+          return parseFloat(value)
+        }
+        throw Error(
+          'Expect a number for "' + fieldname + '", got "' + value + '"'
+        )
+      },
+      boolean(value) {
+        return !!value
+      },
+      array(value) {
+        return [].concat(value)
+      },
+      object(value) {
+        return Object.assign({}, value)
+      },
+      date(value) {
+        return new Date(value)
+      },
+    },
+    globalConfig.types
+  )
 
   function getConstructor(item, fieldname) {
     if (isFunction(item)) {
       return item
     }
-    if (isString(item)) {
-      const constructors = {
-        string: function(value) {
-          if (isString(value)) {
-            return value
-          }
-          if (globalConfig.castString) {
-            return '' + value
-          }
-          throw Error(
-            'Expect a string for "' + fieldname + '", got "' + value + '"'
-          )
-        },
-        number: function(value) {
-          if (isNumber(value)) {
-            return value
-          }
-          if (isString(value) && globalConfig.parseNumbers) {
-            return parseFloat(value)
-          }
-          throw Error(
-            'Expect a number for "' + fieldname + '", got "' + value + '"'
-          )
-        },
-        boolean: function(value) {
-          return !!value
-        },
-        array: function(value) {
-          return [].concat(value)
-        },
-        object: function(value) {
-          return Object.assign({}, value)
-        },
-        date: function(value) {
-          return new Date(value)
-        },
-      }
-      if (isUndefined(constructors[item])) {
-        throw Error(
-          'Try to use unknown type "' +
-            item +
-            '" as type for ' +
-            fieldname +
-            '"'
-        )
-      }
-      return constructors[item]
+    if (constructors[item] == null) {
+      throw Error(
+        `Try to use unknown type "${item}" as type for "${fieldname}"`
+      )
     }
+    return constructors[item]
   }
 
   function parseConfig(config, fieldname) {
