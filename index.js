@@ -197,7 +197,11 @@ module.exports = function(globalConfig) {
           },
         })
       }
-      return config.postInit(result)
+      result = config.postInit(result)
+      if (!globalConfig.extraProperties) {
+        Object.seal(result)
+      }
+      return result
     }
   }
 }
