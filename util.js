@@ -34,24 +34,13 @@ function isUndefined(thing) {
   return typeof thing === 'undefined'
 }
 
-function clone(thing) {
-  if (isArray(thing)) {
-    return [].concat(thing.map(clone))
-  }
-  if (typeof thing === 'object') {
-    return Object.assign({}, thing)
-  }
-  return thing
-}
-
 module.exports = {
-  clone: clone,
-  isUndefined: isUndefined,
-  isNumber: isNumber,
-  isString: isString,
-  isFunction: isFunction,
-  isArray: isArray,
-  isObject: isObject,
-  identity: identity,
-  noop: noop,
+  isUndefined,
+  isNumber,
+  isString,
+  isFunction,
+  isArray,
+  isObject,
+  identity,
+  noop,
 }

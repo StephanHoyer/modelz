@@ -1,7 +1,6 @@
 'use strict'
 
 const {
-  clone,
   identity,
   isArray,
   isFunction,
@@ -64,6 +63,8 @@ module.exports = function(globalConfig) {
       date(value) {
         return new Date(value)
       },
+
+      identity,
     },
     globalConfig.types
   )
@@ -80,48 +81,48 @@ module.exports = function(globalConfig) {
     return constructors[item]
   }
 
-  function parseConfig(config, fieldname) {
-    if (isArray(config) && config.length === 1) {
+  function parseConfig(fieldConfig, fieldname) {
+    if (isArray(fieldConfig) && fieldConfig.length === 1) {
       // array of things
       return {
-        constructor: getConstructor(config[0], fieldname),
+        constructor: getConstructor(fieldConfig[0], fieldname),
       }
     }
-    if (isArray(config) && config.length === 2) {
+    if (isArray(fieldConfig) && fieldConfig.length === 2) {
       // short syntax without default [type, required]
-      const [type, required] = config
+      const [type, required] = fieldConfig
       return {
         constructor: getConstructor(type),
         required,
       }
     }
-    if (isArray(config) && config.length === 3) {
+    if (isArray(fieldConfig) && fieldConfig.length === 3) {
       // short syntax [type, required, default]
-      const [type, required, defaultValue] = config
+      const [type, required, defaultValue] = fieldConfig
       return {
         constructor: getConstructor(type),
         required,
         default: defaultValue,
       }
     }
-    if (isFunction(config)) {
+    if (isFunction(fieldConfig)) {
       // plain constructor
       return {
-        constructor: config,
+        constructor: fieldConfig,
       }
     }
-    if (isObject(config) && isFunction(config.get)) {
+    if (isObject(fieldConfig) && isFunction(fieldConfig.get)) {
       // computed property
       return {
-        get: config.get,
-        set: config.set,
+        get: fieldConfig.get,
+        set: fieldConfig.set,
       }
     }
-    if (isString(config)) {
+    if (isString(fieldConfig)) {
       try {
         // init by type
         return {
-          constructor: getConstructor(config, fieldname),
+          constructor: getConstructor(fieldConfig, fieldname),
         }
       } catch (e) {
         // fail silently and try next init
@@ -130,13 +131,15 @@ module.exports = function(globalConfig) {
     try {
       // init by default
       return {
-        constructor: getConstructor(typeof config, fieldname),
+        constructor: getConstructor(typeof fieldConfig, fieldname),
         required: true,
-        default: config,
+        default: fieldConfig,
       }
     } catch (e) {
       throw new Error(
-        `No proper config handler found for config:\n${JSON.stringify(config)}`
+        `No proper config handler found for config:\n${JSON.stringify(
+          fieldConfig
+        )}`
       )
     }
   }
@@ -149,7 +152,7 @@ module.exports = function(globalConfig) {
 
       let result = {}
       if (config.extraProperties) {
-        result = clone(data)
+        result = Object.assign({}, data)
       }
 
       if (config.embedPlainData) {
@@ -162,15 +165,18 @@ module.exports = function(globalConfig) {
         if (!fields.hasOwnProperty(fieldname)) {
           continue
         }
-        let fieldConfig = parseConfig(fields[fieldname], fieldname)
-        fieldConfig = Object.assign({}, defaultFieldConfig, fieldConfig)
+        const fieldConfig = Object.assign(
+          {},
+          defaultFieldConfig,
+          parseConfig(fields[fieldname], fieldname)
+        )
         if (
           fieldConfig.required &&
           data[fieldname] == null &&
           isUndefined(fieldConfig.default)
         ) {
           throw Error(`No value set for ${fieldname}`)
-        } else if (data[fieldname] != null) {
+        } else if (data.hasOwnProperty(fieldname)) {
           _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
         } else if (fieldConfig.required) {
           _data[fieldname] = fieldConfig.constructor(

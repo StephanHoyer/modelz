@@ -18,7 +18,7 @@ function collection(type) {
   }
 }
 
-const fooSchema = Schema(
+const fooModel = Schema(
   {
     // required string with default
     type: ['string', true, 'typeFoo'],
@@ -36,23 +36,21 @@ const fooSchema = Schema(
     barThingList: collection(barThing),
   },
   {
-    preInit: function(foo) {
+    preInit(foo) {
       foo.onChange = () => {}
       return foo
     },
     onChangeListener: function(foo) {
       return (...args) => foo.onChange(...args)
     },
+    postInit(foo) {
+      foo.getPrefixedBar = function(prefix) {
+        return prefix + foo.bar
+      }
+      return foo
+    },
   }
 )
-
-function fooModel(foo) {
-  foo = fooSchema(foo)
-  foo.getPrefixedBar = function(prefix) {
-    return prefix + foo.bar
-  }
-  return foo
-}
 
 const foo = fooModel({
   bar: 'this is a foo',
@@ -177,10 +175,7 @@ tape('Schema', function(t) {
             return testObj.a + '|' + testObj.b
           },
           set: function(testObj, value) {
-            //ES6 [testObj.a, testObj.b] = value.split('|');
-            value = value.split('|')
-            testObj.a = value[0]
-            testObj.b = value[1]
+            [testObj.a, testObj.b] = value.split('|')
           },
         },
       },
