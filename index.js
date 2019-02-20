@@ -34,7 +34,7 @@ module.exports = function(globalConfig) {
   globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig)
   const constructors = Object.assign(
     {
-      string(value) {
+      string(value, fieldname) {
         if (isString(value)) {
           return value
         }
@@ -43,7 +43,7 @@ module.exports = function(globalConfig) {
         }
         throw Error(`Expect a string for "${fieldname}", got "${value}"`)
       },
-      number(value) {
+      number(value, fieldname) {
         if (isNumber(value)) {
           return value
         }
