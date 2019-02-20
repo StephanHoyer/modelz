@@ -142,7 +142,7 @@ module.exports = function(globalConfig) {
   }
 
   return function Schema(fields, config) {
-    config = Object.assign(globalConfig, config)
+    config = Object.assign({}, globalConfig, config)
     return function construct(data = {}) {
       const _data = {}
       let onChange = noop
