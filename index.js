@@ -41,9 +41,7 @@ module.exports = function(globalConfig) {
         if (globalConfig.castString) {
           return '' + value
         }
-        throw Error(
-          'Expect a string for "' + fieldname + '", got "' + value + '"'
-        )
+        throw Error(`Expect a string for "${fieldname}", got "${value}"`)
       },
       number(value) {
         if (isNumber(value)) {
@@ -52,9 +50,7 @@ module.exports = function(globalConfig) {
         if (isString(value) && globalConfig.parseNumbers) {
           return parseFloat(value)
         }
-        throw Error(
-          'Expect a number for "' + fieldname + '", got "' + value + '"'
-        )
+        throw Error(`Expect a number for "${fieldname}", got "${value}"`)
       },
       boolean(value) {
         return !!value
@@ -140,7 +136,7 @@ module.exports = function(globalConfig) {
       }
     } catch (e) {
       throw new Error(
-        'No proper config handler found for config: \n' + JSON.stringify(config)
+        `No proper config handler found for config:\n${JSON.stringify(config)}`
       )
     }
   }
@@ -173,7 +169,7 @@ module.exports = function(globalConfig) {
           data[fieldname] == null &&
           isUndefined(fieldConfig.default)
         ) {
-          throw Error('No value set for ' + fieldname)
+          throw Error(`No value set for ${fieldname}`)
         } else if (data[fieldname] != null) {
           _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
         } else if (fieldConfig.required) {
