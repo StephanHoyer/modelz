@@ -148,6 +148,17 @@ tape('Schema', function(t) {
     t.end()
   })
 
+  t.test('# null/undefiend handling', function(t) {
+    const schema = Schema({
+      optionalString: 'string',
+      defaultNullString: ['string', false, null],
+    })
+    const a = schema()
+    t.equal(a.optionalString, undefined)
+    t.equal(a.defaultNullString, null)
+    t.end()
+  })
+
   t.test('# Extra properties', function(t) {
     let schema = Schema({})
     let testObj = schema({ bar: 'huhu' })

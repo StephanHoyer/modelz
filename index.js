@@ -170,19 +170,17 @@ module.exports = function(globalConfig) {
           defaultFieldConfig,
           parseConfig(fields[fieldname], fieldname)
         )
-        if (
-          fieldConfig.required &&
-          data[fieldname] == null &&
-          isUndefined(fieldConfig.default)
-        ) {
-          throw Error(`No value set for ${fieldname}`)
-        } else if (data.hasOwnProperty(fieldname)) {
+        if (data.hasOwnProperty(fieldname)) {
           _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
-        } else if (fieldConfig.required) {
+        } else if (fieldConfig.default === null) {
+          _data[fieldname] = fieldConfig.default
+        } else if (fieldConfig.default) {
           _data[fieldname] = fieldConfig.constructor(
             fieldConfig.default,
             result
           )
+        } else if (fieldConfig.required) {
+          throw Error(`No value set for ${fieldname}`)
         }
         Object.defineProperty(result, fieldname, {
           enumerable: !isFunction(fieldConfig.get),
