@@ -167,8 +167,12 @@ module.exports = function(globalConfig) {
           defaultFieldConfig,
           parseConfig(fields[fieldname], fieldname)
         )
-        if (data.hasOwnProperty(fieldname) && data[fieldname] != null) {
-          _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
+        if (data.hasOwnProperty(fieldname)) {
+          if (data[fieldname] == null) {
+            _data[fieldname] = data[fieldname]
+          } else {
+            _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
+          }
         } else if (fieldConfig.default === null) {
           _data[fieldname] = fieldConfig.default
         } else if (fieldConfig.hasOwnProperty('default')) {

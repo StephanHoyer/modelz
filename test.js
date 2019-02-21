@@ -156,6 +156,12 @@ tape('Schema', function(t) {
     const a = schema()
     t.equal(a.optionalString, undefined)
     t.equal(a.defaultNullString, null)
+    const b = schema({
+      optionalString: null,
+      defaultNullString: 'xx',
+    })
+    t.equal(b.optionalString, null)
+    t.equal(b.defaultNullString, 'xx')
     t.end()
   })
 
