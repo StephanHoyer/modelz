@@ -7,7 +7,6 @@ const {
   isNumber,
   isObject,
   isString,
-  isUndefined,
   noop,
 } = require('./util')
 
@@ -64,7 +63,6 @@ module.exports = function(globalConfig) {
         date(value) {
           return new Date(value)
         },
-
         identity,
       },
       globalConfig.types
@@ -80,7 +78,6 @@ module.exports = function(globalConfig) {
     }
     return constructors[item]
   }
-
   function parseConfig(fieldConfig, fieldname) {
     if (isArray(fieldConfig) && fieldConfig.length === 1) {
       // array of things
@@ -170,11 +167,11 @@ module.exports = function(globalConfig) {
           defaultFieldConfig,
           parseConfig(fields[fieldname], fieldname)
         )
-        if (data.hasOwnProperty(fieldname)) {
+        if (data.hasOwnProperty(fieldname) && data[fieldname] != null) {
           _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
         } else if (fieldConfig.default === null) {
           _data[fieldname] = fieldConfig.default
-        } else if (fieldConfig.default) {
+        } else if (fieldConfig.hasOwnProperty('default')) {
           _data[fieldname] = fieldConfig.constructor(
             fieldConfig.default,
             result
