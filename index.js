@@ -31,45 +31,45 @@ const defaultGlobalConfig = {
 
 module.exports = function(globalConfig) {
   globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig)
-  const constructors = Object.assign(
-    {
-      string(value, fieldname) {
-        if (isString(value)) {
-          return value
-        }
-        if (globalConfig.castString) {
-          return '' + value
-        }
-        throw Error(`Expect a string for "${fieldname}", got "${value}"`)
-      },
-      number(value, fieldname) {
-        if (isNumber(value)) {
-          return value
-        }
-        if (isString(value) && globalConfig.parseNumbers) {
-          return parseFloat(value)
-        }
-        throw Error(`Expect a number for "${fieldname}", got "${value}"`)
-      },
-      boolean(value) {
-        return !!value
-      },
-      array(value) {
-        return [].concat(value)
-      },
-      object(value) {
-        return Object.assign({}, value)
-      },
-      date(value) {
-        return new Date(value)
-      },
-
-      identity,
-    },
-    globalConfig.types
-  )
-
   function getConstructor(item, fieldname) {
+    const constructors = Object.assign(
+      {
+        string(value) {
+          if (isString(value)) {
+            return value
+          }
+          if (globalConfig.castString) {
+            return '' + value
+          }
+          throw Error(`Expect a string for "${fieldname}", got "${value}"`)
+        },
+        number(value) {
+          if (isNumber(value)) {
+            return value
+          }
+          if (isString(value) && globalConfig.parseNumbers) {
+            return parseFloat(value)
+          }
+          throw Error(`Expect a number for "${fieldname}", got "${value}"`)
+        },
+        boolean(value) {
+          return !!value
+        },
+        array(value) {
+          return [].concat(value)
+        },
+        object(value) {
+          return Object.assign({}, value)
+        },
+        date(value) {
+          return new Date(value)
+        },
+
+        identity,
+      },
+      globalConfig.types
+    )
+
     if (isFunction(item)) {
       return item
     }
@@ -92,7 +92,7 @@ module.exports = function(globalConfig) {
       // short syntax without default [type, required]
       const [type, required] = fieldConfig
       return {
-        constructor: getConstructor(type),
+        constructor: getConstructor(type, fieldname),
         required,
       }
     }
@@ -100,7 +100,7 @@ module.exports = function(globalConfig) {
       // short syntax [type, required, default]
       const [type, required, defaultValue] = fieldConfig
       return {
-        constructor: getConstructor(type),
+        constructor: getConstructor(type, fieldname),
         required,
         default: defaultValue,
       }
