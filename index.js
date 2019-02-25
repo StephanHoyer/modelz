@@ -79,12 +79,6 @@ module.exports = function(globalConfig) {
     return constructors[item]
   }
   function parseConfig(fieldConfig, fieldname) {
-    if (isArray(fieldConfig) && fieldConfig.length === 1) {
-      // array of things
-      return {
-        constructor: getConstructor(fieldConfig[0], fieldname),
-      }
-    }
     if (isArray(fieldConfig) && fieldConfig.length === 2) {
       // short syntax without default [type, required]
       const [type, required] = fieldConfig
