@@ -4,7 +4,7 @@
   "description": "Simple model schema helper",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/tape/bin/tape test.js"
+    "test": "ospec test.js"
   },
   "repository": {
     "type": "git",
@@ -26,8 +26,8 @@
   "homepage": "https://github.com/StephanHoyer/modelz",
   "devDependencies": {
     "eslint": "5.14.0",
-    "prettier": "1.16.4",
-    "tape": "4.10.1"
+    "ospec": "3.1.0",
+    "prettier": "1.16.4"
   },
   "gitHead": "693cb9317093994ba515f34e13acc277735fb820",
   "_id": "modelz@0.2.2",

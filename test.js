@@ -1,12 +1,12 @@
 'use strict'
 
 const Schema = require('./')()
-const tape = require('tape')
+const o = require('ospec')
 
 function barThing(name) {
   return {
-    what: function() {
-      return 'this is a bar named "' + name + '"'
+    what() {
+      return `this is a bar named "${name}"`
     },
     type: 'typeBar',
   }
@@ -61,59 +61,39 @@ const foo = fooModel({
   barThingList: ['bar1', 'bar2', 'bar3'],
 })
 
-tape('Schema', function(t) {
-  t.test('# Basics', function(t) {
-    t.equal(
-      foo.type,
-      'typeFoo',
-      'should allow string properties and set defaults'
-    )
-    t.equal(foo.count, 7, 'should allow number properties')
-    t.equal(foo.baz, 123, 'should allow definition by default value')
-    t.equal(
-      foo.numberWithoutDefault,
-      0,
-      'should allow to even set falsy number values'
-    )
-    t.equal(
-      foo.stringWithoutDefault,
-      '',
-      'should allow to even set falsy string values'
-    )
-    t.equal(
-      foo.getPrefixedBar('ATTENTION: '),
-      'ATTENTION: this is a foo',
-      'should use properties'
-    )
-    t.equal(foo.barThing.type, 'typeBar', 'should instantiate sub models')
-    t.equal(
-      foo.barThing.what(),
-      'this is a bar named "my super bar"',
-      'submodel should be fully instantiated'
-    )
-    t.equal(foo.barThingList.length, 3, 'should allow array property')
-    t.equal(
-      foo.barThingList[1].what(),
-      'this is a bar named "bar2"',
-      'items of array property should be instantiated'
-    )
-    t.throws(function() {
+o.spec('Schema', function() {
+  o('# Basics', function() {
+    o(foo.type).equals('typeFoo')
+    o(foo.count).equals(7)
+    o(foo.baz).equals(123)
+    o(foo.numberWithoutDefault).equals(0)
+    o(foo.stringWithoutDefault).equals('')
+    o(foo.getPrefixedBar('ATTENTION: ')).equals('ATTENTION: this is a foo')
+    o(foo.barThing.type).equals('typeBar')
+    o(foo.barThing.what()).equals('this is a bar named "my super bar"')
+    o(foo.barThingList.length).equals(3)
+    o(foo.barThingList[1].what()).equals('this is a bar named "bar2"')
+    const throwError = o.spy()
+    try {
       fooModel({
         barThing: 'aa',
         barThingList: [],
       })
-    }, 'should throw error if data misses a required field')
-    foo.onChange = function(key, value, oldValue) {
-      t.ok(true, 'should fire events')
-      t.equal(key, 'bar', 'should deliver changed key')
-      t.equal(value, 'new bar', 'should deliver new value')
-      t.equal(oldValue, 'this is a foo', 'should deliver old value')
-      t.end()
+    } catch (e) {
+      throwError(e)
     }
+    o(throwError.callCount).equals(1)
+
+    foo.onChange = o.spy()
     foo.bar = 'new bar'
+
+    const [key, value, oldValue] = foo.onChange.args
+    o(key).equals('bar')
+    o(value).equals('new bar')
+    o(oldValue).equals('this is a foo')
   })
 
-  t.test('# Arrays/Collections', function(t) {
+  o('# Arrays/Collections', function() {
     const stringCollection = function(strings) {
       const arr = [].concat(strings.map(a => a.toString()))
       arr.last = () => arr[arr.length - 1]
@@ -128,11 +108,10 @@ tape('Schema', function(t) {
       list: ['haha', 'huhu', 'hoho'],
     })
 
-    t.equal(testObj.list.last(), 'hoho', 'defined function should be callable')
-    t.end()
+    o(testObj.list.last()).equals('hoho')
   })
 
-  t.test('# Defaults for complex types', function(t) {
+  o('# Defaults for complex types', function() {
     const schema = Schema({
       // default arrays
       arrayProp: ['array', true, ['foo']],
@@ -143,32 +122,30 @@ tape('Schema', function(t) {
     const second = schema()
     first.arrayProp.push('bar')
     first.objProp.baz = 'foz'
-    t.deepEqual(second.arrayProp, ['foo'])
-    t.deepEqual(second.objProp, { bar: 'foo' })
-    t.end()
+    o(second.arrayProp).deepEquals(['foo'])
+    o(second.objProp).deepEquals({ bar: 'foo' })
   })
 
-  t.test('# null/undefiend handling', function(t) {
+  o('# null/undefined handling', function() {
     const schema = Schema({
       optionalString: 'string',
       defaultNullString: ['string', false, null],
     })
     const a = schema()
-    t.equal(a.optionalString, undefined)
-    t.equal(a.defaultNullString, null)
+    o(a.optionalString).equals(undefined)
+    o(a.defaultNullString).equals(null)
     const b = schema({
       optionalString: null,
       defaultNullString: 'xx',
     })
-    t.equal(b.optionalString, null)
-    t.equal(b.defaultNullString, 'xx')
-    t.end()
+    o(b.optionalString).equals(null)
+    o(b.defaultNullString).equals('xx')
   })
 
-  t.test('# Extra properties', function(t) {
+  o('# Extra properties', function() {
     let schema = Schema({})
     let testObj = schema({ bar: 'huhu' })
-    t.equal(testObj.bar, undefined, 'bar property shouldn\'t be presend')
+    o(testObj.bar).equals(undefined)
     schema = Schema(
       {},
       {
@@ -176,12 +153,13 @@ tape('Schema', function(t) {
       }
     )
     testObj = schema({ bar: 'huhu' })
-    t.equal(testObj.bar, 'huhu', 'bar property should now be possible')
-    t.end()
+    o(testObj.bar).equals('huhu')
   })
 
-  t.test('# Computed properties', function(t) {
-    t.plan(6)
+  o('# Computed properties', function() {
+    const aChanged = o.spy()
+    const bChanged = o.spy()
+    const abChanged = o.spy()
     const schema = Schema(
       {
         a: 'string',
@@ -200,34 +178,25 @@ tape('Schema', function(t) {
         onChangeListener: function() {
           return function(key, newValue, oldValue) {
             if (key === 'a') {
-              t.deepEqual(
-                [oldValue, newValue],
-                ['AA', 'CC'],
-                'change event on first dependency should be fired'
-              )
+              aChanged(oldValue, newValue)
             }
             if (key === 'b') {
-              t.deepEqual(
-                [oldValue, newValue],
-                ['BB', 'DD'],
-                'change event on second dependency should be fired'
-              )
+              bChanged(oldValue, newValue)
             }
             if (key === 'ab') {
-              t.deepEqual(
-                [oldValue, newValue],
-                ['AA|BB', 'CC|DD'],
-                'change event on computed property should be fired'
-              )
+              abChanged(oldValue, newValue)
             }
           }
         },
       }
     )
     const testObj = schema({ a: 'AA', b: 'BB' })
-    t.equal(testObj.ab, 'AA|BB', 'should have computed property')
+    o(testObj.ab).equals('AA|BB')
     testObj.ab = 'CC|DD'
-    t.equal(testObj.a, 'CC', 'attribute should be set by computed property')
-    t.equal(testObj.b, 'DD', 'attribute should be set by computed property')
+    o(testObj.a).equals('CC')
+    o(testObj.b).equals('DD')
+    o(aChanged.args).deepEquals(['AA', 'CC'])
+    o(bChanged.args).deepEquals(['BB', 'DD'])
+    o(abChanged.args).deepEquals(['AA|BB', 'CC|DD'])
   })
 })
