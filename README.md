@@ -208,7 +208,10 @@ var test = schema({
 assert(test.ab, 'foo|bar')
 ```
 
-Computed properties can be cached too. There are to possibilities. Defined the properties the cached prop dependeds on (see `ab`) or roll your own (see `x`).
+Computed properties can be cached too. There are two possibilities:
+
+* Defined the properties the cached prop dependeds on (see `ab`)
+* or roll your own (see `x`)
 
 ```javascript
 var schema = Schema({
