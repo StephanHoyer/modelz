@@ -156,47 +156,95 @@ o.spec('Schema', function() {
     o(testObj.bar).equals('huhu')
   })
 
-  o('# Computed properties', function() {
-    const aChanged = o.spy()
-    const bChanged = o.spy()
-    const abChanged = o.spy()
-    const schema = Schema(
-      {
-        a: 'string',
-        b: 'string',
-        ab: {
-          cacheKey: ['a', 'b'],
-          get: function(testObj) {
-            return testObj.a + '|' + testObj.b
-          },
-          set: function(testObj, value) {
-            [testObj.a, testObj.b] = value.split('|')
+  o.spec('# Computed properties', function() {
+    o('basic usage', function() {
+      const aChanged = o.spy()
+      const bChanged = o.spy()
+      const abChanged = o.spy()
+      const schema = Schema(
+        {
+          a: 'string',
+          b: 'string',
+          ab: {
+            get: function(testObj) {
+              return testObj.a + '|' + testObj.b
+            },
+            set: function(testObj, value) {
+              [testObj.a, testObj.b] = value.split('|')
+            },
           },
         },
+        {
+          onChangeListener: function() {
+            return function(key, newValue, oldValue) {
+              if (key === 'a') {
+                aChanged(oldValue, newValue)
+              }
+              if (key === 'b') {
+                bChanged(oldValue, newValue)
+              }
+              if (key === 'ab') {
+                abChanged(oldValue, newValue)
+              }
+            }
+          },
+        }
+      )
+      const testObj = schema({ a: 'AA', b: 'BB' })
+      o(testObj.ab).equals('AA|BB')
+      testObj.ab = 'CC|DD'
+      o(testObj.a).equals('CC')
+      o(testObj.b).equals('DD')
+      o(aChanged.args).deepEquals(['AA', 'CC'])
+      o(bChanged.args).deepEquals(['BB', 'DD'])
+      o(abChanged.args).deepEquals(['AA|BB', 'CC|DD'])
+    })
+  })
+
+  o('cache property', function() {
+    const getCacheKeySpy = o.spy()
+    const getXSpy = o.spy()
+    const modelX = Schema({
+      x: {
+        get: [
+          getXSpy,
+          function getCacheKey(obj) {
+            getCacheKeySpy(obj)
+            return getCacheKeySpy.callCount <= 2 ? 'cacheKey' : 'third call'
+          },
+        ],
       },
-      {
-        onChangeListener: function() {
-          return function(key, newValue, oldValue) {
-            if (key === 'a') {
-              aChanged(oldValue, newValue)
-            }
-            if (key === 'b') {
-              bChanged(oldValue, newValue)
-            }
-            if (key === 'ab') {
-              abChanged(oldValue, newValue)
-            }
-          }
-        },
-      }
-    )
-    const testObj = schema({ a: 'AA', b: 'BB' })
-    o(testObj.ab).equals('AA|BB')
-    testObj.ab = 'CC|DD'
-    o(testObj.a).equals('CC')
-    o(testObj.b).equals('DD')
-    o(aChanged.args).deepEquals(['AA', 'CC'])
-    o(bChanged.args).deepEquals(['BB', 'DD'])
-    o(abChanged.args).deepEquals(['AA|BB', 'CC|DD'])
+    })
+    const xObj = modelX()
+    xObj.x
+    o(getXSpy.args[0]).equals(xObj)
+    o(getXSpy.callCount).equals(1)
+    o(getCacheKeySpy.args[0]).equals(xObj)
+    o(getCacheKeySpy.callCount).equals(1)
+    xObj.x
+    o(getCacheKeySpy.callCount).equals(2)
+    o(getXSpy.callCount).equals(1)
+    xObj.x
+    o(getCacheKeySpy.callCount).equals(3)
+    o(getXSpy.callCount).equals(2)
+
+    const getASpy = o.spy()
+    const modelA = Schema({
+      aDep: ['string', true, 'A'],
+      a: {
+        get: [getASpy, ['aDep']],
+      },
+    })
+    const aObj = modelA()
+    aObj.a
+    o(getASpy.args[0]).equals(aObj)
+    o(getASpy.callCount).equals(1)
+    aObj.a
+    o(getASpy.callCount).equals(1)
+    aObj.aDep = 'B'
+    aObj.a
+    o(getASpy.callCount).equals(2)
+    aObj.a
+    o(getASpy.callCount).equals(2)
   })
 })

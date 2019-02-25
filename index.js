@@ -28,6 +28,12 @@ const defaultGlobalConfig = {
   types: {},
 }
 
+function createCacheFunction(depProps) {
+  return function(obj) {
+    return depProps.map(prop => obj[prop]).join('|<3|')
+  }
+}
+
 module.exports = function(globalConfig) {
   globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig)
   function getConstructor(item, fieldname) {
@@ -105,7 +111,23 @@ module.exports = function(globalConfig) {
     if (isObject(fieldConfig) && isFunction(fieldConfig.get)) {
       // computed property
       return {
+        getCacheKey: noop,
         get: fieldConfig.get,
+        set: fieldConfig.set,
+      }
+    }
+    if (
+      isObject(fieldConfig) &&
+      isArray(fieldConfig.get) &&
+      isFunction(fieldConfig.get[0]) &&
+      (isFunction(fieldConfig.get[1]) || isArray(fieldConfig.get[1]))
+    ) {
+      // computed property with cache function
+      return {
+        getCacheKey: isArray(fieldConfig.get[1])
+          ? createCacheFunction(fieldConfig.get[1])
+          : fieldConfig.get[1],
+        get: fieldConfig.get[0],
         set: fieldConfig.set,
       }
     }
@@ -180,8 +202,19 @@ module.exports = function(globalConfig) {
         Object.defineProperty(result, fieldname, {
           enumerable: !isFunction(fieldConfig.get),
           get: function() {
-            if (isFunction(fieldConfig.get)) {
-              return fieldConfig.get(result)
+            if (fieldConfig.get) {
+              const key = fieldConfig.getCacheKey(result)
+              if (
+                !_data.hasOwnProperty(fieldname) ||
+                key == null ||
+                key !== _data[fieldname].key
+              ) {
+                _data[fieldname] = {
+                  key,
+                  value: fieldConfig.get(result),
+                }
+              }
+              return _data[fieldname].value
             }
             return result._data[fieldname]
           },
