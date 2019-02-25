@@ -1,6 +1,6 @@
 'use strict'
 
-const {
+import {
   identity,
   isArray,
   isFunction,
@@ -8,7 +8,7 @@ const {
   isObject,
   isString,
   noop,
-} = require('./util')
+} from './util'
 
 const defaultFieldConfig = {
   constructor: identity,
@@ -34,7 +34,7 @@ function createCacheFunction(depProps) {
   }
 }
 
-module.exports = function(globalConfig) {
+function modelz(globalConfig) {
   globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig)
   function getConstructor(item, fieldname) {
     const constructors = Object.assign(
@@ -237,3 +237,5 @@ module.exports = function(globalConfig) {
     }
   }
 }
+
+export default modelz

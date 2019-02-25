@@ -1,6 +1,6 @@
 'use strict'
 
-const Schema = require('./')()
+const Schema = require('../modelz')()
 const o = require('ospec')
 
 function barThing(name) {

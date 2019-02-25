@@ -1,27 +1,22 @@
 [![Build Status](https://travis-ci.org/StephanHoyer/modelz.svg?branch=master)](https://travis-ci.org/StephanHoyer/modelz)
 [![rethink.js](https://img.shields.io/badge/rethink-js-yellow.svg)](https://github.com/rethinkjs/manifest)
-![](http://img.badgesize.io/StephanHoyer/modelz/master/index.js.svg?compression=brotli)
+![](http://img.badgesize.io/StephanHoyer/modelz/master/modelz.js.svg?compression=brotli)
 
-modelz
-======
+# modelz
 
 Simple model scheme helper
 
-With *modelz*, we try to build a `backbone/ampersand`-Model in a new way. No prototypes involved here.
+With _modelz_, we try to build a `backbone/ampersand`-Model in a new way. No prototypes involved here.
 
 Currently it's a minimal approach to have properties with getter/setter, automatic children/collection construction and change-events.
 
-how to install?
----------------
-
-Browserify ftw!
+## how to install?
 
 ```shell
-npm install modelz --save
+npm install modelz
 ```
 
-how to use?
------------
+## how to use?
 
 ```javascript
 // load function and set global config for it
@@ -31,7 +26,7 @@ var dogSchema = Schema({
   breed: breedModel,
   name: ['string', true],
   color: color,
-  friends: [dogModel]
+  friends: [dogModel],
 })
 ```
 
@@ -41,38 +36,37 @@ To create the model simply do:
 
 ```javascript
 function dogModel(dog) {
-  dog = dogSchema(dog);
-  
-  dog.bark = function () {
-    console.log(dog.name + ' barks!');
+  dog = dogSchema(dog)
+
+  dog.bark = function() {
+    console.log(dog.name + ' barks!')
   }
-  
-  return dog;
+
+  return dog
 }
 ```
 
-and then create an instance with: 
+and then create an instance with:
+
 ```javascript
 var lassie = dogModel({
   name: 'Lassie',
-  breed: {name: 'Collie'},
+  breed: { name: 'Collie' },
   color: 'pied',
-  friends: [{name: 'Tomy'}]
-});
+  friends: [{ name: 'Tomy' }],
+})
 
 lassie.bark() // console.logs 'Lassie barks!'
 ```
 
-So how does this help me?
--------------------------
+## So how does this help me?
 
-* It validates the input data
-* It sets defaults if given
-* It constructs sub-models (breed) and sub-collections (friends) (Collections currently are plain JS arrays)
-* It removes data that is not specified in schema
+- It validates the input data
+- It sets defaults if given
+- It constructs sub-models (breed) and sub-collections (friends) (Collections currently are plain JS arrays)
+- It removes data that is not specified in schema
 
-detail usage
-------------
+## detail usage
 
 ### defining properties
 
@@ -91,10 +85,10 @@ There a differnet ways to define a property:
 Example: `name: 'string'`
 
 Property is optional and has no default value. Types can be
-* `string`
-* `number`
-* `date`
 
+- `string`
+- `number`
+- `date`
 
 #### Array without default
 
@@ -120,6 +114,7 @@ only possible with primitive types (`string`, `number`, `date`).
 ### init-Hooks
 
 Example:
+
 ```javascript
 var userSchema = Schema({
   // fields definition
@@ -175,7 +170,7 @@ and stored at the key `user` of the instance.
 Example: `tags: ['string']`
 
 Property will be a collection of strings. This is also possible with constructor
-functions. 
+functions.
 
 Example: `users: [createUser]`
 
@@ -195,22 +190,22 @@ var schema = Schema({
   b: 'string',
   ab: {
     get: function(testObj) {
-      return testObj.a + '|' + testObj.b;
+      return testObj.a + '|' + testObj.b
     },
     set: function(testObj, value) {
-      value = value.split('|');
-      testObj.a = value[0];
-      testObj.b = value[1];
-    }
-  }
-});
+      value = value.split('|')
+      testObj.a = value[0]
+      testObj.b = value[1]
+    },
+  },
+})
 
 var test = schema({
   a: 'foo',
-  b: 'bar'
+  b: 'bar',
 })
 
-assert(test.ab, 'foo|bar');
+assert(test.ab, 'foo|bar')
 ```
 
 It creates a computed property on the instance. Getter is always required,
@@ -219,7 +214,6 @@ setter is optional.
 In a future version the result will be cached. Currently it computes it on
 every `get`.
 
-Roadmap
--------
+## Roadmap
 
 Refer to the issues.
