@@ -208,11 +208,30 @@ var test = schema({
 assert(test.ab, 'foo|bar')
 ```
 
-It creates a computed property on the instance. Getter is always required,
-setter is optional.
+Computed properties can be cached too. There are to possibilities. Defined the properties the cached prop dependeds on (see `ab`) or roll your own (see `x`).
 
-In a future version the result will be cached. Currently it computes it on
-every `get`.
+```javascript
+var schema = Schema({
+  a: 'string',
+  b: 'string',
+  ab: {
+    get: [function(testObj) {
+      return testObj.a + '|' + testObj.b
+    }, ['a', 'b'],
+  },
+  x: {
+    get: [
+      function(testObj) {
+        return heavyComputationToGetX(testObj)
+      },
+      function getCacheKey(testObj) {
+        return someSimplerFunctionToComputeCacheKey(testObj)
+      }
+    ]
+  },
+  
+})
+```
 
 ## Roadmap
 
