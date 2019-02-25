@@ -8,7 +8,7 @@ Simple model scheme helper
 
 With _modelz_, we try to build a `backbone/ampersand`-Model in a new way. No prototypes involved here.
 
-Currently it's a minimal approach to have properties with getter/setter, automatic children/collection construction and change-events.
+Currently it's a minimal approach to have properties with getter/setter, automatic children construction and change-events.
 
 ## how to install?
 
@@ -63,7 +63,7 @@ lassie.bark() // console.logs 'Lassie barks!'
 
 - It validates the input data
 - It sets defaults if given
-- It constructs sub-models (breed) and sub-collections (friends) (Collections currently are plain JS arrays)
+- It constructs sub-models (breed)
 - It removes data that is not specified in schema
 
 ## detail usage
@@ -164,23 +164,6 @@ Example: `user: createUser`
 Property is an object. All data that is passed under the users key on
 initialization is passed to the `createUser` function. The result is returned
 and stored at the key `user` of the instance.
-
-### arrays and children collections
-
-Example: `tags: ['string']`
-
-Property will be a collection of strings. This is also possible with constructor
-functions.
-
-Example: `users: [createUser]`
-
-It expects an array of objects as input value on the `users`-property
-on the input-object. It runs the constructor-function on each of the object and
-stores the result on the `users`-property of the instance:
-
-This also can be combined with all the above versions:
-
-Example: `users: [[createUser], true, []]`
 
 ### computed properties
 
