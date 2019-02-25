@@ -210,17 +210,20 @@ assert(test.ab, 'foo|bar')
 
 Computed properties can be cached too. There are two possibilities:
 
-* Defined the properties the cached prop dependeds on (see `ab`)
-* or roll your own (see `x`)
+- Define the properties the cached prop dependeds on (see `ab`)
+- or roll your own (see `x`)
 
 ```javascript
 var schema = Schema({
   a: 'string',
   b: 'string',
   ab: {
-    get: [function(testObj) {
-      return testObj.a + '|' + testObj.b
-    }, ['a', 'b'],
+    get: [
+      function(testObj) {
+        return testObj.a + '|' + testObj.b
+      },
+      ['a', 'b'],
+    ],
   },
   x: {
     get: [
@@ -229,10 +232,9 @@ var schema = Schema({
       },
       function getCacheKey(testObj) {
         return someSimplerFunctionToComputeCacheKey(testObj)
-      }
-    ]
+      },
+    ],
   },
-  
 })
 ```
 
