@@ -169,7 +169,9 @@ function modelz(globalConfig) {
       }
 
       if (config.embedPlainData) {
-        result._data = _data
+        Object.defineProperty(result, '_data', {
+          get: () => _data,
+        })
       }
       result = config.preInit(result)
       onChange = config.onChangeListener(result)
