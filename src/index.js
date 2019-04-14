@@ -12,6 +12,7 @@ import {
 
 const defaultFieldConfig = {
   constructor: identity,
+  enumerable: true,
   required: false,
 }
 
@@ -171,6 +172,7 @@ function modelz(globalConfig) {
       if (config.embedPlainData) {
         Object.defineProperty(result, '_data', {
           get: () => _data,
+          enumerable: false,
         })
       }
       result = config.preInit(result)
@@ -202,7 +204,7 @@ function modelz(globalConfig) {
           throw Error(`No value set for ${fieldname}`)
         }
         Object.defineProperty(result, fieldname, {
-          enumerable: !isFunction(fieldConfig.get),
+          enumerable: !isFunction(fieldConfig.get) && fieldConfig.enumerable,
           get: function() {
             if (fieldConfig.get) {
               const key = fieldConfig.getCacheKey(result)

@@ -36,6 +36,7 @@
 
   var defaultFieldConfig = {
     constructor: identity,
+    enumerable: true,
     required: false,
   };
 
@@ -200,6 +201,7 @@
         if (config.embedPlainData) {
           Object.defineProperty(result, '_data', {
             get: function () { return _data; },
+            enumerable: false,
           });
         }
         result = config.preInit(result);
@@ -231,7 +233,7 @@
             throw Error(("No value set for " + fieldname))
           }
           Object.defineProperty(result, fieldname, {
-            enumerable: !isFunction(fieldConfig.get),
+            enumerable: !isFunction(fieldConfig.get) && fieldConfig.enumerable,
             get: function() {
               if (fieldConfig.get) {
                 var key = fieldConfig.getCacheKey(result);
