@@ -32,6 +32,10 @@ const fooModel = Schema(
     count: ['number', true, 1],
     // optional child model without default
     barThing: barThing,
+    // optional child model as object config
+    barThing2: {
+      construct: barThing,
+    },
     // optional child collection without default
     barThingList: collection(barThing),
   },
@@ -58,6 +62,7 @@ const foo = fooModel({
   stringWithoutDefault: '',
   count: 7,
   barThing: 'my super bar',
+  barThing2: 'my super super bar',
   barThingList: ['bar1', 'bar2', 'bar3'],
 })
 
@@ -71,6 +76,7 @@ o.spec('Schema', function() {
     o(foo.getPrefixedBar('ATTENTION: ')).equals('ATTENTION: this is a foo')
     o(foo.barThing.type).equals('typeBar')
     o(foo.barThing.what()).equals('this is a bar named "my super bar"')
+    o(foo.barThing2.what()).equals('this is a bar named "my super super bar"')
     o(foo.barThingList.length).equals(3)
     o(foo.barThingList[1].what()).equals('this is a bar named "bar2"')
     const throwError = o.spy()

@@ -11,7 +11,8 @@ import {
 } from './util'
 
 const defaultFieldConfig = {
-  constructor: identity,
+  construct: identity,
+  getCacheKey: noop,
   enumerable: true,
   required: false,
 }
@@ -86,66 +87,88 @@ function modelz(globalConfig) {
     return constructors[item]
   }
   function parseConfig(fieldConfig, fieldname) {
+    if (isObject(fieldConfig)) {
+      if (isFunction(fieldConfig.construct)) {
+        // constructor
+        return fieldConfig
+      }
+
+      if (isString(fieldConfig.type)) {
+        // type
+        return Object.assign(
+          {
+            construct: getConstructor(fieldConfig.type, fieldname),
+          },
+          fieldConfig
+        )
+      }
+
+      if (
+        isArray(fieldConfig.get) &&
+        isFunction(fieldConfig.get[0]) &&
+        (isFunction(fieldConfig.get[1]) || isArray(fieldConfig.get[1]))
+      ) {
+        // computed property with cache function
+        return {
+          getCacheKey: isArray(fieldConfig.get[1])
+            ? createCacheFunction(fieldConfig.get[1])
+            : fieldConfig.get[1],
+          get: fieldConfig.get[0],
+          set: fieldConfig.set,
+        }
+      }
+
+      if (isFunction(fieldConfig.get)) {
+        // computed property
+        return {
+          getCacheKey: noop,
+          get: fieldConfig.get,
+          set: fieldConfig.set,
+        }
+      }
+    }
+
     if (isArray(fieldConfig) && fieldConfig.length === 2) {
       // short syntax without default [type, required]
       const [type, required] = fieldConfig
       return {
-        constructor: getConstructor(type, fieldname),
+        construct: getConstructor(type, fieldname),
         required,
       }
     }
+
     if (isArray(fieldConfig) && fieldConfig.length === 3) {
       // short syntax [type, required, default]
       const [type, required, defaultValue] = fieldConfig
       return {
-        constructor: getConstructor(type, fieldname),
+        construct: getConstructor(type, fieldname),
         required,
         default: defaultValue,
       }
     }
+
     if (isFunction(fieldConfig)) {
-      // plain constructor
+      // plain construct
       return {
-        constructor: fieldConfig,
+        construct: fieldConfig,
       }
     }
-    if (isObject(fieldConfig) && isFunction(fieldConfig.get)) {
-      // computed property
-      return {
-        getCacheKey: noop,
-        get: fieldConfig.get,
-        set: fieldConfig.set,
-      }
-    }
-    if (
-      isObject(fieldConfig) &&
-      isArray(fieldConfig.get) &&
-      isFunction(fieldConfig.get[0]) &&
-      (isFunction(fieldConfig.get[1]) || isArray(fieldConfig.get[1]))
-    ) {
-      // computed property with cache function
-      return {
-        getCacheKey: isArray(fieldConfig.get[1])
-          ? createCacheFunction(fieldConfig.get[1])
-          : fieldConfig.get[1],
-        get: fieldConfig.get[0],
-        set: fieldConfig.set,
-      }
-    }
+
     if (isString(fieldConfig)) {
       try {
         // init by type
         return {
-          constructor: getConstructor(fieldConfig, fieldname),
+          construct: getConstructor(fieldConfig, fieldname),
         }
       } catch (e) {
         // fail silently and try next init
       }
     }
+
     try {
       // init by default
       return {
-        constructor: getConstructor(typeof fieldConfig, fieldname),
+        construct: getConstructor(typeof fieldConfig, fieldname),
         required: true,
         default: fieldConfig,
       }
@@ -177,7 +200,6 @@ function modelz(globalConfig) {
       }
       result = config.preInit(result)
       onChange = config.onChangeListener(result)
-
       for (const fieldname in fields) {
         if (!fields.hasOwnProperty(fieldname)) {
           continue
@@ -191,15 +213,12 @@ function modelz(globalConfig) {
           if (data[fieldname] == null) {
             _data[fieldname] = data[fieldname]
           } else {
-            _data[fieldname] = fieldConfig.constructor(data[fieldname], result)
+            _data[fieldname] = fieldConfig.construct(data[fieldname], result)
           }
         } else if (fieldConfig.default === null) {
           _data[fieldname] = fieldConfig.default
         } else if (fieldConfig.hasOwnProperty('default')) {
-          _data[fieldname] = fieldConfig.constructor(
-            fieldConfig.default,
-            result
-          )
+          _data[fieldname] = fieldConfig.construct(fieldConfig.default, result)
         } else if (fieldConfig.required) {
           throw Error(`No value set for ${fieldname}`)
         }
