@@ -115,6 +115,9 @@ o.spec('Schema', function() {
     })
 
     o(testObj.list.last()).equals('hoho')
+
+    testObj.list = ['reassigned', 'list']
+    o(testObj.list.last()).equals('list')
   })
 
   o('# Defaults for complex types', function() {

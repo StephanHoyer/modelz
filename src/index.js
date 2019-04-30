@@ -246,7 +246,7 @@ function modelz(globalConfig) {
             if (isFunction(fieldConfig.set)) {
               fieldConfig.set(result, value)
             } else {
-              _data[fieldname] = value
+              _data[fieldname] = fieldConfig.construct(value)
             }
             onChange(fieldname, value, oldValue)
           },
