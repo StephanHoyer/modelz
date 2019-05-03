@@ -141,18 +141,18 @@ o.spec('Schema', function() {
       mandatoryStringWithDefault: ['string', true, 'DEFAULT'],
     })
     const a = schema()
-    o(a.optionalString).equals(undefined)
+    o(a.optionalString).equals(null)
     o(a.mandatoryStringWithDefault).equals('DEFAULT')
     const b = schema({
       optionalString: null,
       mandatoryStringWithDefault: 'xx',
     })
-    o(b.optionalString).equals(undefined)
+    o(b.optionalString).equals(null)
     o(b.mandatoryStringWithDefault).equals('xx')
     const c = schema({
       mandatoryStringWithDefault: null,
     })
-    o(c.optionalString).equals(undefined)
+    o(c.optionalString).equals(null)
     o(c.mandatoryStringWithDefault).equals('DEFAULT')
   })
 

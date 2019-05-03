@@ -230,9 +230,6 @@
         result = config.preInit(result);
         onChange = config.onChangeListener(result);
         var loop = function ( fieldname ) {
-          if (!fields.hasOwnProperty(fieldname)) {
-            return
-          }
           var fieldConfig = Object.assign(
             {},
             defaultFieldConfig,
@@ -259,7 +256,7 @@
               if (isFunction(fieldConfig.set)) {
                 fieldConfig.set(result, value);
               } else if (!fieldConfig.required && value == null) {
-                _data[fieldname] = value;
+                _data[fieldname] = value = null;
               } else {
                 _data[fieldname] = fieldConfig.construct(
                   value,
@@ -271,15 +268,15 @@
             },
           });
 
-          if (
-            sourceData.hasOwnProperty(fieldname) &&
-            sourceData[fieldname] != null
-          ) {
+          if (sourceData[fieldname] != null) {
             result[fieldname] = sourceData[fieldname];
           } else if (fieldConfig.hasOwnProperty('default')) {
             result[fieldname] = fieldConfig.default;
           } else if (fieldConfig.required) {
             throw Error('No value set for ' + fieldname)
+          } else if (!fieldConfig.get) {
+            // default to null if it's not a computed prop
+            result[fieldname] = null;
           }
         };
 
