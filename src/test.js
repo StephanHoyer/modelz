@@ -138,17 +138,22 @@ o.spec('Schema', function() {
   o('# null/undefined handling', function() {
     const schema = Schema({
       optionalString: 'string',
-      defaultNullString: ['string', false, null],
+      mandatoryStringWithDefault: ['string', true, 'DEFAULT'],
     })
     const a = schema()
     o(a.optionalString).equals(undefined)
-    o(a.defaultNullString).equals(null)
+    o(a.mandatoryStringWithDefault).equals('DEFAULT')
     const b = schema({
       optionalString: null,
-      defaultNullString: 'xx',
+      mandatoryStringWithDefault: 'xx',
     })
-    o(b.optionalString).equals(null)
-    o(b.defaultNullString).equals('xx')
+    o(b.optionalString).equals(undefined)
+    o(b.mandatoryStringWithDefault).equals('xx')
+    const c = schema({
+      mandatoryStringWithDefault: null,
+    })
+    o(c.optionalString).equals(undefined)
+    o(c.mandatoryStringWithDefault).equals('DEFAULT')
   })
 
   o('# Extra properties', function() {

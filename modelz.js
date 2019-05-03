@@ -210,15 +210,15 @@
 
     return function Schema(fields, config) {
       config = Object.assign({}, globalConfig, config);
-      return function construct(data) {
-        if ( data === void 0 ) data = {};
+      return function construct(sourceData) {
+        if ( sourceData === void 0 ) sourceData = {};
 
         var _data = {};
         var onChange = noop;
 
         var result = {};
         if (config.extraProperties) {
-          result = Object.assign({}, data);
+          result = Object.assign({}, sourceData);
         }
 
         if (config.embedPlainData) {
@@ -238,19 +238,6 @@
             defaultFieldConfig,
             parseConfig(fields[fieldname], fieldname)
           );
-          if (data.hasOwnProperty(fieldname)) {
-            if (data[fieldname] == null) {
-              _data[fieldname] = data[fieldname];
-            } else {
-              _data[fieldname] = fieldConfig.construct(data[fieldname], result);
-            }
-          } else if (fieldConfig.default === null) {
-            _data[fieldname] = fieldConfig.default;
-          } else if (fieldConfig.hasOwnProperty('default')) {
-            _data[fieldname] = fieldConfig.construct(fieldConfig.default, result);
-          } else if (fieldConfig.required) {
-            throw Error(("No value set for " + fieldname))
-          }
           Object.defineProperty(result, fieldname, {
             enumerable: !isFunction(fieldConfig.get) && fieldConfig.enumerable,
             get: function() {
@@ -261,10 +248,7 @@
                   key == null ||
                   key !== _data[fieldname].key
                 ) {
-                  _data[fieldname] = {
-                    key: key,
-                    value: fieldConfig.get(result),
-                  };
+                  _data[fieldname] = { key: key, value: fieldConfig.get(result) };
                 }
                 return _data[fieldname].value
               }
@@ -274,12 +258,29 @@
               var oldValue = result[fieldname];
               if (isFunction(fieldConfig.set)) {
                 fieldConfig.set(result, value);
+              } else if (!fieldConfig.required && value == null) {
+                _data[fieldname] = value;
               } else {
-                _data[fieldname] = fieldConfig.construct(value);
+                _data[fieldname] = fieldConfig.construct(
+                  value,
+                  result,
+                  fieldConfig
+                );
               }
               onChange(fieldname, value, oldValue);
             },
           });
+
+          if (
+            sourceData.hasOwnProperty(fieldname) &&
+            sourceData[fieldname] != null
+          ) {
+            result[fieldname] = sourceData[fieldname];
+          } else if (fieldConfig.hasOwnProperty('default')) {
+            result[fieldname] = fieldConfig.default;
+          } else if (fieldConfig.required) {
+            throw Error('No value set for ' + fieldname)
+          }
         };
 
         for (var fieldname in fields) loop( fieldname );
