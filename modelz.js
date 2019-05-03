@@ -213,6 +213,9 @@
       return function construct(sourceData) {
         if ( sourceData === void 0 ) sourceData = {};
 
+        if (sourceData._isInitialized) {
+          return sourceData
+        }
         var _data = {};
         var onChange = noop;
 
@@ -227,6 +230,10 @@
             enumerable: false,
           });
         }
+        Object.defineProperty(result, '_isInitialized', {
+          get: function () { return true; },
+          enumerable: false,
+        });
         result = config.preInit(result);
         onChange = config.onChangeListener(result);
         var loop = function ( fieldname ) {

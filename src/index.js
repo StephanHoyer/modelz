@@ -184,6 +184,9 @@ function modelz(globalConfig) {
   return function Schema(fields, config) {
     config = Object.assign({}, globalConfig, config)
     return function construct(sourceData = {}) {
+      if (sourceData._isInitialized) {
+        return sourceData
+      }
       const _data = {}
       let onChange = noop
 
@@ -198,6 +201,10 @@ function modelz(globalConfig) {
           enumerable: false,
         })
       }
+      Object.defineProperty(result, '_isInitialized', {
+        get: () => true,
+        enumerable: false,
+      })
       result = config.preInit(result)
       onChange = config.onChangeListener(result)
       for (const fieldname in fields) {
