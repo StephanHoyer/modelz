@@ -28,8 +28,10 @@ const fooModel = Schema(
     stringWithoutDefault: 'string',
     // required string without default
     bar: ['string', true],
-    // required number without default
+    // required number with default
     count: ['number', true, 1],
+    // required number with default as function
+    randomNumber: ['number', true, Math.random],
     // optional child model without default
     barThing: barThing,
     // optional child model as object config
@@ -70,6 +72,8 @@ o.spec('Schema', function() {
   o('# Basics', function() {
     o(foo.type).equals('typeFoo')
     o(foo.count).equals(7)
+    o(foo.randomNumber >= 0).equals(true)
+    o(foo.randomNumber < 1).equals(true)
     o(foo.baz).equals(123)
     o(foo.numberWithoutDefault).equals(0)
     o(foo.stringWithoutDefault).equals('')

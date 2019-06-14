@@ -249,7 +249,11 @@ function modelz(globalConfig) {
         if (sourceData[fieldname] != null) {
           result[fieldname] = sourceData[fieldname]
         } else if (fieldConfig.hasOwnProperty('default')) {
-          result[fieldname] = fieldConfig.default
+          if (isFunction(fieldConfig.default)) {
+            result[fieldname] = fieldConfig.default()
+          } else {
+            result[fieldname] = fieldConfig.default
+          }
         } else if (fieldConfig.required) {
           throw Error('No value set for ' + fieldname)
         } else if (!fieldConfig.get) {
