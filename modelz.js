@@ -148,6 +148,7 @@
             getCacheKey: noop,
             get: fieldConfig.get,
             set: fieldConfig.set,
+            enumerable: fieldConfig.enumerable || false,
           }
         }
       }
@@ -243,7 +244,7 @@
             parseConfig(fields[fieldname], fieldname)
           );
           Object.defineProperty(result, fieldname, {
-            enumerable: !isFunction(fieldConfig.get) && fieldConfig.enumerable,
+            enumerable: fieldConfig.enumerable,
             get: function() {
               if (fieldConfig.get) {
                 var key = fieldConfig.getCacheKey(result);

@@ -124,6 +124,7 @@ function modelz(globalConfig) {
           getCacheKey: noop,
           get: fieldConfig.get,
           set: fieldConfig.set,
+          enumerable: fieldConfig.enumerable || false,
         }
       }
     }
@@ -214,7 +215,7 @@ function modelz(globalConfig) {
           parseConfig(fields[fieldname], fieldname)
         )
         Object.defineProperty(result, fieldname, {
-          enumerable: !isFunction(fieldConfig.get) && fieldConfig.enumerable,
+          enumerable: fieldConfig.enumerable,
           get: function() {
             if (fieldConfig.get) {
               const key = fieldConfig.getCacheKey(result)

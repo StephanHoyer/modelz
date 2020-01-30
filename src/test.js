@@ -188,8 +188,14 @@ o.spec('Schema', function() {
               return testObj.a + '|' + testObj.b
             },
             set: function(testObj, value) {
-              [testObj.a, testObj.b] = value.split('|')
+              ;[testObj.a, testObj.b] = value.split('|')
             },
+          },
+          enumeratedAb: {
+            get: function(testObj) {
+              return testObj.a + '|' + testObj.b
+            },
+            enumerable: true,
           },
         },
         {
@@ -216,6 +222,9 @@ o.spec('Schema', function() {
       o(aChanged.args).deepEquals(['AA', 'CC'])
       o(bChanged.args).deepEquals(['BB', 'DD'])
       o(abChanged.args).deepEquals(['AA|BB', 'CC|DD'])
+      o(JSON.stringify(testObj)).equals(
+        '{"a":"CC","b":"DD","enumeratedAb":"CC|DD"}'
+      )
     })
   })
 
