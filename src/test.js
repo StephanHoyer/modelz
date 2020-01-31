@@ -140,24 +140,41 @@ o.spec('Schema', function() {
   })
 
   o('# null/undefined handling', function() {
-    const schema = Schema({
+    const model = Schema({
       optionalString: 'string',
       mandatoryStringWithDefault: ['string', true, 'DEFAULT'],
+      mandatoryStringWithEmptyDefault: ['string', true, ''],
     })
-    const a = schema()
+
+    const a = model()
     o(a.optionalString).equals(null)
     o(a.mandatoryStringWithDefault).equals('DEFAULT')
-    const b = schema({
+    o(a.mandatoryStringWithEmptyDefault).equals('')
+
+    const b = model({
       optionalString: null,
       mandatoryStringWithDefault: 'xx',
+      mandatoryStringWithEmptyDefault: 'yy',
     })
     o(b.optionalString).equals(null)
     o(b.mandatoryStringWithDefault).equals('xx')
-    const c = schema({
+    o(b.mandatoryStringWithEmptyDefault).equals('yy')
+
+    const c = model({
       mandatoryStringWithDefault: null,
+      mandatoryStringWithEmptyDefault: null,
     })
     o(c.optionalString).equals(null)
     o(c.mandatoryStringWithDefault).equals('DEFAULT')
+    o(c.mandatoryStringWithEmptyDefault).equals('')
+
+    const d = model({
+      mandatoryStringWithDefault: undefined,
+      mandatoryStringWithEmptyDefault: undefined,
+    })
+    o(d.optionalString).equals(null)
+    o(d.mandatoryStringWithDefault).equals('DEFAULT')
+    o(d.mandatoryStringWithEmptyDefault).equals('')
   })
 
   o('# Extra properties', function() {
