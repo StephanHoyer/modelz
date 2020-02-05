@@ -261,6 +261,7 @@ o.spec('Schema', function() {
     })
     const xObj = modelX()
     xObj.x
+    o({}.propertyIsEnumerable.call(xObj, 'x')).equals(false)
     o(getXSpy.args[0]).equals(xObj)
     o(getXSpy.callCount).equals(1)
     o(getCacheKeySpy.args[0]).equals(xObj)

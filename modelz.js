@@ -139,6 +139,7 @@
               : fieldConfig.get[1],
             get: fieldConfig.get[0],
             set: fieldConfig.set,
+            enumerable: fieldConfig.enumerable || false,
           }
         }
 
