@@ -32,7 +32,7 @@
     "prettier": "1.19.1",
     "rollup": "1.2.3",
     "rollup-plugin-buble": "0.19.8",
-    "rollup-plugin-filesize": "6.2.1",
+    "rollup-plugin-filesize": "9.0.0",
     "rollup-plugin-uglify": "6.0.4"
   },
   "gitHead": "693cb9317093994ba515f34e13acc277735fb820",
