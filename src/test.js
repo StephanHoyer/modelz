@@ -250,13 +250,11 @@ o.spec('Schema', function() {
     const getXSpy = o.spy()
     const modelX = Schema({
       x: {
-        get: [
-          getXSpy,
-          function getCacheKey(obj) {
-            getCacheKeySpy(obj)
-            return getCacheKeySpy.callCount <= 2 ? 'cacheKey' : 'third call'
-          },
-        ],
+        get: getXSpy,
+        cacheKey: obj => {
+          getCacheKeySpy(obj)
+          return getCacheKeySpy.callCount <= 2 ? 'cacheKey' : 'third call'
+        },
       },
     })
     const xObj = modelX()
@@ -277,7 +275,8 @@ o.spec('Schema', function() {
     const modelA = Schema({
       aDep: ['string', true, 'A'],
       a: {
-        get: [getASpy, ['aDep']],
+        get: getASpy,
+        cacheKey: ['aDep'],
       },
     })
     const aObj = modelA()

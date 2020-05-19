@@ -5,6 +5,7 @@
   "main": "modelz.js",
   "scripts": {
     "test": "npm run build && ospec ./src/test.js",
+    "test-debug": "npm run build && node inspect ./node_modules/.bin/ospec ./src/test.js",
     "build": "rollup -c"
   },
   "repository": {

@@ -201,22 +201,18 @@ var schema = Schema({
   a: 'string',
   b: 'string',
   ab: {
-    get: [
-      function(testObj) {
-        return testObj.a + '|' + testObj.b
-      },
-      ['a', 'b'],
-    ],
+    get: function(testObj) {
+      return testObj.a + '|' + testObj.b
+    },
+    cacheKey: ['a', 'b'],
   },
   x: {
-    get: [
-      function(testObj) {
-        return heavyComputationToGetX(testObj)
-      },
-      function getCacheKey(testObj) {
-        return someSimplerFunctionToComputeCacheKey(testObj)
-      },
-    ],
+    get: function(testObj) {
+      return heavyComputationToGetX(testObj)
+    },
+    cacheKey: function getCacheKey(testObj) {
+      return someSimplerFunctionToComputeCacheKey(testObj)
+    },
   },
 })
 ```

@@ -54,10 +54,16 @@
     types: {},
   };
 
-  function createCacheFunction(depProps) {
-    return function(obj) {
-      return depProps.map(function (prop) { return obj[prop]; }).join('|<3|')
+  function createCacheFunction(fieldConfig) {
+    if (isArray(fieldConfig.cacheKey)) {
+      return function(obj) {
+        return fieldConfig.cacheKey.map(function (prop) { return obj[prop]; }).join('|<3|')
+      }
     }
+    if (isFunction(fieldConfig.cacheKey)) {
+      return fieldConfig.cacheKey
+    }
+    return noop
   }
 
   function modelz(globalConfig) {
@@ -127,26 +133,9 @@
           )
         }
 
-        if (
-          isArray(fieldConfig.get) &&
-          isFunction(fieldConfig.get[0]) &&
-          (isFunction(fieldConfig.get[1]) || isArray(fieldConfig.get[1]))
-        ) {
-          // computed property with cache function
-          return {
-            getCacheKey: isArray(fieldConfig.get[1])
-              ? createCacheFunction(fieldConfig.get[1])
-              : fieldConfig.get[1],
-            get: fieldConfig.get[0],
-            set: fieldConfig.set,
-            enumerable: fieldConfig.enumerable || false,
-          }
-        }
-
         if (isFunction(fieldConfig.get)) {
-          // computed property
           return {
-            getCacheKey: noop,
+            getCacheKey: createCacheFunction(fieldConfig),
             get: fieldConfig.get,
             set: fieldConfig.set,
             enumerable: fieldConfig.enumerable || false,
