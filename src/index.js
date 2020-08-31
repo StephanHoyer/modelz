@@ -20,7 +20,7 @@ const defaultFieldConfig = {
 const defaultGlobalConfig = {
   castString: true,
   parseNumbers: true,
-  onChangeListener: function() {
+  onChangeListener: function () {
     return noop
   },
   extraProperties: false,
@@ -32,8 +32,8 @@ const defaultGlobalConfig = {
 
 function createCacheFunction(fieldConfig) {
   if (isArray(fieldConfig.cacheKey)) {
-    return function(obj) {
-      return fieldConfig.cacheKey.map(prop => obj[prop]).join('|<3|')
+    return function (obj) {
+      return fieldConfig.cacheKey.map((prop) => obj[prop]).join('|<3|')
     }
   }
   if (isFunction(fieldConfig.cacheKey)) {
@@ -206,7 +206,7 @@ function modelz(globalConfig) {
         )
         Object.defineProperty(result, fieldname, {
           enumerable: fieldConfig.enumerable,
-          get: function() {
+          get: function () {
             if (fieldConfig.get) {
               const key = fieldConfig.getCacheKey(result)
               if (
@@ -220,7 +220,7 @@ function modelz(globalConfig) {
             }
             return result._data[fieldname]
           },
-          set: function(value) {
+          set: function (value) {
             const oldValue = result[fieldname]
             if (isFunction(fieldConfig.set)) {
               fieldConfig.set(result, value)

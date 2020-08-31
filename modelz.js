@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
-  (global = global || self, global.modelz = factory());
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.modelz = factory());
 }(this, (function () { 'use strict';
 
   function noop() {}
@@ -44,7 +44,7 @@
   var defaultGlobalConfig = {
     castString: true,
     parseNumbers: true,
-    onChangeListener: function() {
+    onChangeListener: function () {
       return noop
     },
     extraProperties: false,
@@ -56,7 +56,7 @@
 
   function createCacheFunction(fieldConfig) {
     if (isArray(fieldConfig.cacheKey)) {
-      return function(obj) {
+      return function (obj) {
         return fieldConfig.cacheKey.map(function (prop) { return obj[prop]; }).join('|<3|')
       }
     }
@@ -235,7 +235,7 @@
           );
           Object.defineProperty(result, fieldname, {
             enumerable: fieldConfig.enumerable,
-            get: function() {
+            get: function () {
               if (fieldConfig.get) {
                 var key = fieldConfig.getCacheKey(result);
                 if (
@@ -249,7 +249,7 @@
               }
               return result._data[fieldname]
             },
-            set: function(value) {
+            set: function (value) {
               var oldValue = result[fieldname];
               if (isFunction(fieldConfig.set)) {
                 fieldConfig.set(result, value);

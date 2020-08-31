@@ -13,7 +13,7 @@ function barThing(name) {
 }
 
 function collection(type) {
-  return function(arr) {
+  return function (arr) {
     return [].concat(arr.map(type))
   }
 }
@@ -46,11 +46,11 @@ const fooModel = Schema(
       foo.onChange = () => {}
       return foo
     },
-    onChangeListener: function(foo) {
+    onChangeListener: function (foo) {
       return (...args) => foo.onChange(...args)
     },
     postInit(foo) {
-      foo.getPrefixedBar = function(prefix) {
+      foo.getPrefixedBar = function (prefix) {
         return prefix + foo.bar
       }
       return foo
@@ -68,8 +68,8 @@ const foo = fooModel({
   barThingList: ['bar1', 'bar2', 'bar3'],
 })
 
-o.spec('Schema', function() {
-  o('# Basics', function() {
+o.spec('Schema', function () {
+  o('# Basics', function () {
     o(foo.type).equals('typeFoo')
     o(foo.count).equals(7)
     o(foo.randomNumber >= 0).equals(true)
@@ -103,9 +103,9 @@ o.spec('Schema', function() {
     o(oldValue).equals('this is a foo')
   })
 
-  o('# Arrays/Collections', function() {
-    const stringCollection = function(strings) {
-      const arr = [].concat(strings.map(a => a.toString()))
+  o('# Arrays/Collections', function () {
+    const stringCollection = function (strings) {
+      const arr = [].concat(strings.map((a) => a.toString()))
       arr.last = () => arr[arr.length - 1]
       return arr
     }
@@ -124,7 +124,7 @@ o.spec('Schema', function() {
     o(testObj.list.last()).equals('list')
   })
 
-  o('# Defaults for complex types', function() {
+  o('# Defaults for complex types', function () {
     const schema = Schema({
       // default arrays
       arrayProp: ['array', true, ['foo']],
@@ -139,7 +139,7 @@ o.spec('Schema', function() {
     o(second.objProp).deepEquals({ bar: 'foo' })
   })
 
-  o('# null/undefined handling', function() {
+  o('# null/undefined handling', function () {
     const model = Schema({
       optionalString: 'string',
       mandatoryStringWithDefault: ['string', true, 'DEFAULT'],
@@ -177,7 +177,7 @@ o.spec('Schema', function() {
     o(d.mandatoryStringWithEmptyDefault).equals('')
   })
 
-  o('# Extra properties', function() {
+  o('# Extra properties', function () {
     let schema = Schema({})
     let testObj = schema({ bar: 'huhu' })
     o(testObj.bar).equals(undefined)
@@ -191,8 +191,8 @@ o.spec('Schema', function() {
     o(testObj.bar).equals('huhu')
   })
 
-  o.spec('# Computed properties', function() {
-    o('basic usage', function() {
+  o.spec('# Computed properties', function () {
+    o('basic usage', function () {
       const aChanged = o.spy()
       const bChanged = o.spy()
       const abChanged = o.spy()
@@ -201,23 +201,23 @@ o.spec('Schema', function() {
           a: 'string',
           b: 'string',
           ab: {
-            get: function(testObj) {
+            get: function (testObj) {
               return testObj.a + '|' + testObj.b
             },
-            set: function(testObj, value) {
+            set: function (testObj, value) {
               ;[testObj.a, testObj.b] = value.split('|')
             },
           },
           enumeratedAb: {
-            get: function(testObj) {
+            get: function (testObj) {
               return testObj.a + '|' + testObj.b
             },
             enumerable: true,
           },
         },
         {
-          onChangeListener: function() {
-            return function(key, newValue, oldValue) {
+          onChangeListener: function () {
+            return function (key, newValue, oldValue) {
               if (key === 'a') {
                 aChanged(oldValue, newValue)
               }
@@ -245,13 +245,13 @@ o.spec('Schema', function() {
     })
   })
 
-  o('cache property', function() {
+  o('cache property', function () {
     const getCacheKeySpy = o.spy()
     const getXSpy = o.spy()
     const modelX = Schema({
       x: {
         get: getXSpy,
-        cacheKey: obj => {
+        cacheKey: (obj) => {
           getCacheKeySpy(obj)
           return getCacheKeySpy.callCount <= 2 ? 'cacheKey' : 'third call'
         },
@@ -290,5 +290,8 @@ o.spec('Schema', function() {
     o(getASpy.callCount).equals(2)
     aObj.a
     o(getASpy.callCount).equals(2)
+    aObj.aDep = undefined
+    aObj.a
+    o(getASpy.callCount).equals(3)
   })
 })
