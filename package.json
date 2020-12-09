@@ -28,7 +28,7 @@
   "homepage": "https://github.com/StephanHoyer/modelz",
   "devDependencies": {
     "acorn": "8.0.1",
-    "eslint": "7.7.0",
+    "eslint": "7.15.0",
     "ospec": "4.1.1",
     "prettier": "2.1.1",
     "rollup": "2.26.5",
