@@ -206,7 +206,10 @@
         if ( sourceData === void 0 ) sourceData = {};
 
         globalConfig.debug &&
-          globalConfig.debug.extend('create')((modelName + ": %O"), sourceData);
+          globalConfig.debug.extend('create')(
+            ("constructing " + modelName + " with data %O"),
+            sourceData
+          );
         if (sourceData._isInitialized) {
           return sourceData
         }
