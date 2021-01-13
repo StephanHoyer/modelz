@@ -201,9 +201,12 @@
 
     return function Schema(fields, config) {
       config = Object.assign({}, globalConfig, config);
+      var modelName = config.name ? config.name : 'instance';
       return function construct(sourceData) {
         if ( sourceData === void 0 ) sourceData = {};
 
+        globalConfig.debug &&
+          globalConfig.debug.extend('create')((modelName + ": %O"), sourceData);
         if (sourceData._isInitialized) {
           return sourceData
         }
@@ -213,6 +216,17 @@
         var result = {};
         if (config.extraProperties) {
           result = Object.assign({}, sourceData);
+        } else if (globalConfig.debug) {
+          var fieldKeys = Object.keys(fields);
+          var ignoredProperties = Object.keys(sourceData).filter(
+            function (key) { return !fieldKeys.includes(key); }
+          );
+          if (ignoredProperties.length) {
+            globalConfig.debug.extend('warn')(
+              ("The properties %o are not defined on target " + modelName + " and will therefore be dropped."),
+              ignoredProperties
+            );
+          }
         }
 
         if (config.embedPlainData) {

@@ -174,7 +174,13 @@ function modelz(globalConfig) {
 
   return function Schema(fields, config) {
     config = Object.assign({}, globalConfig, config)
+    const modelName = config.name ? config.name : 'instance'
     return function construct(sourceData = {}) {
+      globalConfig.debug &&
+        globalConfig.debug.extend('create')(
+          `constructing ${modelName} with data %O`,
+          sourceData
+        )
       if (sourceData._isInitialized) {
         return sourceData
       }
@@ -184,6 +190,17 @@ function modelz(globalConfig) {
       let result = {}
       if (config.extraProperties) {
         result = Object.assign({}, sourceData)
+      } else if (globalConfig.debug) {
+        const fieldKeys = Object.keys(fields)
+        const ignoredProperties = Object.keys(sourceData).filter(
+          (key) => !fieldKeys.includes(key)
+        )
+        if (ignoredProperties.length) {
+          globalConfig.debug.extend('warn')(
+            `The properties %o are not defined on target ${modelName} and will therefore be dropped.`,
+            ignoredProperties
+          )
+        }
       }
 
       if (config.embedPlainData) {
