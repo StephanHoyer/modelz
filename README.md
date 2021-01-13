@@ -38,7 +38,7 @@ To create the model simply do:
 function dogModel(dog) {
   dog = dogSchema(dog)
 
-  dog.bark = function() {
+  dog.bark = function () {
     console.log(dog.name + ' barks!')
   }
 
@@ -53,7 +53,7 @@ var lassie = dogModel({
   name: 'Lassie',
   breed: { name: 'Collie' },
   color: 'pied',
-  friends: [{ name: 'Tomy' }],
+  friends: [{ name: 'Tommy' }],
 })
 
 lassie.bark() // console.logs 'Lassie barks!'
@@ -78,7 +78,7 @@ var dogSchema = Schema({
 })
 ```
 
-There a differnet ways to define a property:
+There a different ways to define a property:
 
 #### type as string
 
@@ -120,12 +120,12 @@ var userSchema = Schema({
   // fields definition
 }, {
   preInit: function(user) {
-    // do some stuff before getter/setter are aplied
+    // do some stuff before getter/setter are applied
     user.onChange = new Signal();
     return user; // always return the instance!!
   },
   postInit: function(user) {
-    // do some stuff after getter/setter are aplied
+    // do some stuff after getter/setter are applied
     return user; // always return the instance!!
   }
 }
@@ -172,10 +172,10 @@ var schema = Schema({
   a: 'string',
   b: 'string',
   ab: {
-    get: function(testObj) {
+    get: function (testObj) {
       return testObj.a + '|' + testObj.b
     },
-    set: function(testObj, value) {
+    set: function (testObj, value) {
       value = value.split('|')
       testObj.a = value[0]
       testObj.b = value[1]
@@ -193,7 +193,7 @@ assert(test.ab, 'foo|bar')
 
 Computed properties can be cached too. There are two possibilities:
 
-- Define the properties the cached prop dependeds on (see `ab`)
+- Define the properties the cached prop depends on (see `ab`)
 - or roll your own (see `x`)
 
 ```javascript
@@ -201,13 +201,13 @@ var schema = Schema({
   a: 'string',
   b: 'string',
   ab: {
-    get: function(testObj) {
+    get: function (testObj) {
       return testObj.a + '|' + testObj.b
     },
     cacheKey: ['a', 'b'],
   },
   x: {
-    get: function(testObj) {
+    get: function (testObj) {
       return heavyComputationToGetX(testObj)
     },
     cacheKey: function getCacheKey(testObj) {
@@ -217,6 +217,6 @@ var schema = Schema({
 })
 ```
 
-## Roadmap
+## Road map
 
 Refer to the issues.

@@ -68,7 +68,7 @@
 
   function modelz(globalConfig) {
     globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig);
-    function getConstructor(item, fieldname) {
+    function getConstructor(item, fieldName) {
       var constructors = Object.assign(
         {
           string: function string(value) {
@@ -78,7 +78,7 @@
             if (globalConfig.castString) {
               return '' + value
             }
-            throw Error(("Expect a string for \"" + fieldname + "\", got \"" + value + "\""))
+            throw Error(("Expect a string for \"" + fieldName + "\", got \"" + value + "\""))
           },
           number: function number(value) {
             if (isNumber(value)) {
@@ -87,7 +87,7 @@
             if (isString(value) && globalConfig.parseNumbers) {
               return parseFloat(value)
             }
-            throw Error(("Expect a number for \"" + fieldname + "\", got \"" + value + "\""))
+            throw Error(("Expect a number for \"" + fieldName + "\", got \"" + value + "\""))
           },
           boolean: function boolean(value) {
             return !!value
@@ -111,12 +111,12 @@
       }
       if (constructors[item] == null) {
         throw Error(
-          ("Try to use unknown type \"" + item + "\" as type for \"" + fieldname + "\"")
+          ("Try to use unknown type \"" + item + "\" as type for \"" + fieldName + "\"")
         )
       }
       return constructors[item]
     }
-    function parseConfig(fieldConfig, fieldname) {
+    function parseConfig(fieldConfig, fieldName) {
       if (isObject(fieldConfig)) {
         if (isFunction(fieldConfig.construct)) {
           // constructor
@@ -127,7 +127,7 @@
           // type
           return Object.assign(
             {
-              construct: getConstructor(fieldConfig.type, fieldname),
+              construct: getConstructor(fieldConfig.type, fieldName),
             },
             fieldConfig
           )
@@ -148,7 +148,7 @@
         var type = fieldConfig[0];
         var required = fieldConfig[1];
         return {
-          construct: getConstructor(type, fieldname),
+          construct: getConstructor(type, fieldName),
           required: required,
         }
       }
@@ -159,7 +159,7 @@
         var required$1 = fieldConfig[1];
         var defaultValue = fieldConfig[2];
         return {
-          construct: getConstructor(type$1, fieldname),
+          construct: getConstructor(type$1, fieldName),
           required: required$1,
           default: defaultValue,
         }
@@ -176,7 +176,7 @@
         try {
           // init by type
           return {
-            construct: getConstructor(fieldConfig, fieldname),
+            construct: getConstructor(fieldConfig, fieldName),
           }
         } catch (e) {
           // fail silently and try next init
@@ -186,7 +186,7 @@
       try {
         // init by default
         return {
-          construct: getConstructor(typeof fieldConfig, fieldname),
+          construct: getConstructor(typeof fieldConfig, fieldName),
           required: true,
           default: fieldConfig,
         }
@@ -227,62 +227,62 @@
         });
         result = config.preInit(result);
         onChange = config.onChangeListener(result);
-        var loop = function ( fieldname ) {
+        var loop = function ( fieldName ) {
           var fieldConfig = Object.assign(
             {},
             defaultFieldConfig,
-            parseConfig(fields[fieldname], fieldname)
+            parseConfig(fields[fieldName], fieldName)
           );
-          Object.defineProperty(result, fieldname, {
+          Object.defineProperty(result, fieldName, {
             enumerable: fieldConfig.enumerable,
             get: function () {
               if (fieldConfig.get) {
                 var key = fieldConfig.getCacheKey(result);
                 if (
-                  !_data.hasOwnProperty(fieldname) ||
+                  !_data.hasOwnProperty(fieldName) ||
                   key == null ||
-                  key !== _data[fieldname].key
+                  key !== _data[fieldName].key
                 ) {
-                  _data[fieldname] = { key: key, value: fieldConfig.get(result) };
+                  _data[fieldName] = { key: key, value: fieldConfig.get(result) };
                 }
-                return _data[fieldname].value
+                return _data[fieldName].value
               }
-              return result._data[fieldname]
+              return result._data[fieldName]
             },
             set: function (value) {
-              var oldValue = result[fieldname];
+              var oldValue = result[fieldName];
               if (isFunction(fieldConfig.set)) {
                 fieldConfig.set(result, value);
               } else if (!fieldConfig.required && value == null) {
-                _data[fieldname] = value = null;
+                _data[fieldName] = value = null;
               } else {
-                _data[fieldname] = fieldConfig.construct(
+                _data[fieldName] = fieldConfig.construct(
                   value,
                   result,
                   fieldConfig
                 );
               }
-              onChange(fieldname, value, oldValue);
+              onChange(fieldName, value, oldValue);
             },
           });
 
-          if (sourceData[fieldname] != null) {
-            result[fieldname] = sourceData[fieldname];
+          if (sourceData[fieldName] != null) {
+            result[fieldName] = sourceData[fieldName];
           } else if (fieldConfig.hasOwnProperty('default')) {
             if (isFunction(fieldConfig.default)) {
-              result[fieldname] = fieldConfig.default(sourceData);
+              result[fieldName] = fieldConfig.default(sourceData);
             } else {
-              result[fieldname] = fieldConfig.default;
+              result[fieldName] = fieldConfig.default;
             }
           } else if (fieldConfig.required) {
-            throw Error('No value set for ' + fieldname)
+            throw Error('No value set for ' + fieldName)
           } else if (!fieldConfig.get) {
             // default to null if it's not a computed prop
-            result[fieldname] = null;
+            result[fieldName] = null;
           }
         };
 
-        for (var fieldname in fields) loop( fieldname );
+        for (var fieldName in fields) loop( fieldName );
         result = config.postInit(result);
         if (!globalConfig.extraProperties) {
           Object.seal(result);
