@@ -241,7 +241,7 @@ function modelz(globalConfig) {
           result[fieldname] = sourceData[fieldname]
         } else if (fieldConfig.hasOwnProperty('default')) {
           if (isFunction(fieldConfig.default)) {
-            result[fieldname] = fieldConfig.default()
+            result[fieldname] = fieldConfig.default(sourceData)
           } else {
             result[fieldname] = fieldConfig.default
           }

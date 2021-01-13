@@ -32,6 +32,8 @@ const fooModel = Schema(
     count: ['number', true, 1],
     // required number with default as function
     randomNumber: ['number', true, Math.random],
+    // required number with default that depends on initial data
+    countPlus1: ['number', true, (initialData) => initialData.count + 1],
     // optional child model without default
     barThing: barThing,
     // optional child model as object config
@@ -72,6 +74,7 @@ o.spec('Schema', function () {
   o('# Basics', function () {
     o(foo.type).equals('typeFoo')
     o(foo.count).equals(7)
+    o(foo.countPlus1).equals(8)
     o(foo.randomNumber >= 0).equals(true)
     o(foo.randomNumber < 1).equals(true)
     o(foo.baz).equals(123)
