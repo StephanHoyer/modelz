@@ -134,9 +134,13 @@ See `computed properties`
 
 Function that gets called when you set the property, it gets the new value as only parameter. See `computed properties`
 
-##### getCacheKey
+##### cacheKey
 
-If set, this function gets called before the `get` is called. If this returns the same value for subsequent `get`-calls, the same value is returned without computing it.
+This can either be a function or a list of property names.
+
+If a function is set it gets called when accessing the property before the `get`-function itself is called. If this returns the same value for subsequent accesses to the property, the same value is returned without calling `get`-function itself again.
+
+If this is a list of property names, the sting-representations of those properties is used as the cache key.
 
 ##### enumerable
 
