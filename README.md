@@ -142,7 +142,7 @@ If set, this function gets called before the `get` is called. If this returns th
 
 Defines if this property is serialized or not
 
-##### required: false,
+##### required
 
 Defines if this property is required or not
 
