@@ -111,6 +111,45 @@ Example: `name: 'no name'`
 Property is a string, required and has `'no name'` as default value. This is
 only possible with primitive types (`string`, `number`, `date`).
 
+#### detailed description via object
+
+Example: `name: { type: 'string', required: true, default: 'no name' }`
+
+Possible config properties are
+
+##### type
+
+Can be `string`, `number` or `date`
+
+##### construct
+
+Init function that is called, with the given value as parameter. The return-value it then set as the value of this field
+
+##### get
+
+Function that gets called when you access the property, it gets the instance as only parameter. The return-value is then return as value of the field.
+See `computed properties`
+
+##### set
+
+Function that gets called when you set the property, it gets the new value as only parameter. See `computed properties`
+
+##### getCacheKey
+
+If set, this function gets called before the `get` is called. If this returns the same value for subsequent `get`-calls, the same value is returned without computing it.
+
+##### enumerable
+
+Defines if this property is serialized or not
+
+##### required: false,
+
+Defines if this property is required or not
+
+##### default
+
+Defines the default value if no initial value for the property is given. This can be either a value or a callback function. If it's a function and no initial value was giving during construct the `default`-callback is called with the initial values of the instance as parameter.
+
 ### init-Hooks
 
 Example:
