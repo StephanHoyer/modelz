@@ -1,6 +1,6 @@
 {
   "name": "modelz",
-  "version": "3.0.2",
+  "version": "4.0.0",
   "description": "Simple model schema helper",
   "main": "modelz.js",
   "scripts": {
@@ -37,7 +37,6 @@
     "rollup-plugin-uglify": "6.0.4"
   },
   "gitHead": "693cb9317093994ba515f34e13acc277735fb820",
-  "_id": "modelz@0.2.2",
   "_shasum": "608f5151b2ac6bd72e1d28696746ad46b94bb17d",
   "_from": "modelz@0.2.2",
   "_npmVersion": "1.4.28",
