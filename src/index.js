@@ -175,13 +175,14 @@ function modelz(globalConfig) {
   return function Schema(fields, config) {
     config = Object.assign({}, globalConfig, config)
     const modelName = config.name ? config.name : 'instance'
+    const thisSchema = { modelName }
     return function construct(sourceData = {}) {
       globalConfig.debug &&
         globalConfig.debug.extend('create')(
           `constructing ${modelName} with data %O`,
           sourceData
         )
-      if (sourceData._isInitialized) {
+      if (sourceData._schema === thisSchema) {
         return sourceData
       }
       const _data = {}
@@ -211,6 +212,10 @@ function modelz(globalConfig) {
       }
       Object.defineProperty(result, '_isInitialized', {
         get: () => true,
+        enumerable: false,
+      })
+      Object.defineProperty(result, '_schema', {
+        get: () => thisSchema,
         enumerable: false,
       })
       result = config.preInit(result)

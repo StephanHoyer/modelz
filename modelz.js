@@ -2,7 +2,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
   typeof define === 'function' && define.amd ? define(factory) :
   (global = typeof globalThis !== 'undefined' ? globalThis : global || self, global.modelz = factory());
-}(this, (function () { 'use strict';
+})(this, (function () { 'use strict';
 
   function noop() {}
 
@@ -202,6 +202,7 @@
     return function Schema(fields, config) {
       config = Object.assign({}, globalConfig, config);
       var modelName = config.name ? config.name : 'instance';
+      var thisSchema = { modelName: modelName };
       return function construct(sourceData) {
         if ( sourceData === void 0 ) sourceData = {};
 
@@ -210,7 +211,7 @@
             ("constructing " + modelName + " with data %O"),
             sourceData
           );
-        if (sourceData._isInitialized) {
+        if (sourceData._schema === thisSchema) {
           return sourceData
         }
         var _data = {};
@@ -240,6 +241,10 @@
         }
         Object.defineProperty(result, '_isInitialized', {
           get: function () { return true; },
+          enumerable: false,
+        });
+        Object.defineProperty(result, '_schema', {
+          get: function () { return thisSchema; },
           enumerable: false,
         });
         result = config.preInit(result);
@@ -311,5 +316,5 @@
 
   return modelz;
 
-})));
+}));
 //# sourceMappingURL=modelz.js.map

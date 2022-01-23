@@ -297,4 +297,18 @@ o.spec('Schema', function () {
     aObj.a
     o(getASpy.callCount).equals(3)
   })
+
+  o('double init', function () {
+    const initA = o.spy(a => a)
+    const initB = o.spy(a => a)
+    const modalA = Schema({}, { postInit: initA, modelName: 'a' })
+    const modalB = Schema({}, { postInit: initB, modelName: 'b' })
+
+    const a = modalA()
+    o(initA.callCount).equals(1)
+    modalA(a)
+    o(initA.callCount).equals(1)
+    modalB(a)
+    o(initB.callCount).equals(1)
+  })
 })
