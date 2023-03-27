@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/StephanHoyer/modelz.svg?branch=master)](https://travis-ci.org/StephanHoyer/modelz)
+[![Build status](https://github.com/StephanHoyer/modelz/actions/workflows/node.js.yml/badge.svg)](https://github.com/StephanHoyer/modelz/actions/workflows/node.js.yml)
 [![rethink.js](https://img.shields.io/badge/rethink-js-yellow.svg)](https://github.com/rethinkjs/manifest)
 ![](http://img.badgesize.io/StephanHoyer/modelz/master/modelz.js.svg?compression=brotli)
 
