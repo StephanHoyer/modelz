@@ -67,6 +67,7 @@ lassie.bark() // console.logs 'Lassie barks!'
 - It sets defaults if given
 - It constructs sub-models (breed)
 - It removes data that is not specified in schema
+- It allows for (cacheable) computed properties
 
 ## detail usage
 
