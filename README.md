@@ -24,7 +24,7 @@ import models from 'modelz'
 
 const Schema = models() // <-- potential global module config goes here
 
-var dogSchema = Schema({
+const dogSchema = Schema({
   breed: breedModel,
   name: ['string', true],
   color: color,
@@ -51,7 +51,7 @@ function dogModel(dog) {
 and then create an instance with:
 
 ```javascript
-var lassie = dogModel({
+const lassie = dogModel({
   name: 'Lassie',
   breed: { name: 'Collie' },
   color: 'pied',
@@ -77,7 +77,7 @@ import models from 'modelz'
 
 const Schema = models()
 
-var dogSchema = Schema({
+const dogSchema = Schema({
   name: ['string', true], //property definition
 })
 ```
@@ -163,7 +163,7 @@ Defines the default value if no initial value for the property is given. This ca
 Example:
 
 ```javascript
-var userSchema = Schema({
+const userSchema = Schema({
   // fields definition
 }, {
   preInit: function(user) {
@@ -184,7 +184,7 @@ construction (see `test.js`).
 ### onChangeListener-Hook
 
 ```javascript
-var userSchema = Schema({
+const userSchema = Schema({
   // fields definition
 }, {
   onChangeListener: function(user) {
@@ -215,7 +215,7 @@ and stored at the key `user` of the instance.
 ### computed properties
 
 ```javascript
-var schema = Schema({
+const schema = Schema({
   a: 'string',
   b: 'string',
   ab: {
@@ -230,7 +230,7 @@ var schema = Schema({
   },
 })
 
-var test = schema({
+const test = schema({
   a: 'foo',
   b: 'bar',
 })
@@ -244,7 +244,7 @@ Computed properties can be cached too. There are two possibilities:
 - or roll your own (see `x`)
 
 ```javascript
-var schema = Schema({
+const schema = Schema({
   a: 'string',
   b: 'string',
   ab: {
