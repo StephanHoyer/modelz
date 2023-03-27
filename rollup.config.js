@@ -1,7 +1,6 @@
 'use strict'
 
-import buble from 'rollup-plugin-buble'
-import uglify from 'rollup-plugin-uglify'
+import terser from '@rollup/plugin-terser'
 import filesize from 'rollup-plugin-filesize'
 
 export default [
@@ -14,7 +13,7 @@ export default [
       name: 'modelz',
       sourcemap: true,
     },
-    plugins: process.env.TEST ? [] : [buble(), filesize()],
+    plugins: process.env.TEST ? [] : [terser(), filesize()],
   },
   {
     input: './src/index.js',
@@ -26,8 +25,7 @@ export default [
       sourcemap: true,
     },
     plugins: [
-      buble(),
-      uglify.uglify({ mangle: true, compress: true }),
+      terser(),
       filesize(),
     ],
   },

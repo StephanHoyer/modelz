@@ -27,14 +27,12 @@
   },
   "homepage": "https://github.com/StephanHoyer/modelz",
   "devDependencies": {
-    "acorn": "8.7.0",
     "eslint": "8.36.0",
     "ospec": "4.2.0",
     "prettier": "2.8.7",
     "rollup": "2.66.0",
-    "rollup-plugin-buble": "0.19.8",
     "rollup-plugin-filesize": "9.1.1",
-    "rollup-plugin-uglify": "6.0.4"
+    "@rollup/plugin-terser": "0.4.0"
   },
   "gitHead": "693cb9317093994ba515f34e13acc277735fb820",
   "_shasum": "608f5151b2ac6bd72e1d28696746ad46b94bb17d",
@@ -55,6 +53,5 @@
     "tarball": "http://registry.npmjs.org/modelz/-/modelz-0.2.2.tgz"
   },
   "directories": {},
-  "_resolved": "https://registry.npmjs.org/modelz/-/modelz-0.2.2.tgz",
-  "readme": "ERROR: No README data found!"
+  "_resolved": "https://registry.npmjs.org/modelz/-/modelz-0.2.2.tgz"
 }
