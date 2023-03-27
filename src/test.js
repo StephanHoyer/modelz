@@ -1,7 +1,7 @@
 'use strict'
 
-const Schema = require('../modelz')()
-const o = require('ospec')
+import models from './index.js'
+import o from 'ospec'
 
 function barThing(name) {
   return {
@@ -17,6 +17,8 @@ function collection(type) {
     return [].concat(arr.map(type))
   }
 }
+
+const Schema = models()
 
 const fooModel = Schema(
   {

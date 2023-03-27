@@ -3,6 +3,7 @@
   "version": "4.0.0",
   "description": "Simple model schema helper",
   "main": "modelz.js",
+  "type": "module",
   "scripts": {
     "test": "npm run build && ospec ./src/test.js",
     "test-debug": "npm run build && node inspect ./node_modules/.bin/ospec ./src/test.js",
@@ -31,7 +32,7 @@
     "eslint": "8.36.0",
     "ospec": "4.2.0",
     "prettier": "2.8.7",
-    "rollup": "2.66.0",
+    "rollup": "3.20.2",
     "rollup-plugin-filesize": "10.0.0"
   },
   "gitHead": "693cb9317093994ba515f34e13acc277735fb820",

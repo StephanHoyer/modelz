@@ -8,7 +8,7 @@ import {
   isObject,
   isString,
   noop,
-} from './util'
+} from './util.js'
 
 const defaultFieldConfig = {
   construct: identity,
