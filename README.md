@@ -20,7 +20,9 @@ npm install modelz
 
 ```javascript
 // load function and set global config for it
-var Schema = require('modelz')() // <-- potential global module config goes here
+import models from 'modelz'
+
+const Schema = models() // <-- potential global module config goes here
 
 var dogSchema = Schema({
   breed: breedModel,
@@ -71,7 +73,9 @@ lassie.bark() // console.logs 'Lassie barks!'
 ### defining properties
 
 ```javascript
-var Schema = require('modelz')()
+import models from 'modelz'
+
+const Schema = models()
 
 var dogSchema = Schema({
   name: ['string', true], //property definition
