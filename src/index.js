@@ -20,9 +20,7 @@ const defaultFieldConfig = {
 const defaultGlobalConfig = {
   castString: true,
   parseNumbers: true,
-  onChangeListener: function () {
-    return noop
-  },
+  onChangeListener: () => noop,
   extraProperties: false,
   embedPlainData: true,
   preInit: identity,
@@ -30,57 +28,66 @@ const defaultGlobalConfig = {
   types: {},
 }
 
-function createCacheFunction(fieldConfig) {
-  if (isArray(fieldConfig.cacheKey)) {
-    return function (obj) {
-      return fieldConfig.cacheKey.map((prop) => obj[prop]).join('|<3|')
-    }
+function createCacheFunction({ cacheKey }) {
+  if (isArray(cacheKey)) {
+    return (obj) => cacheKey.map((prop) => obj[prop]).join('|<3|')
   }
-  if (isFunction(fieldConfig.cacheKey)) {
-    return fieldConfig.cacheKey
+  if (isFunction(cacheKey)) {
+    return cacheKey
   }
   return noop
 }
 
 function modelz(globalConfig) {
-  globalConfig = Object.assign({}, defaultGlobalConfig, globalConfig)
+  const {
+    castString,
+    debug,
+    embedPlainData,
+    extraProperties,
+    onChangeListener,
+    parseNumbers,
+    postInit,
+    preInit,
+    types,
+  } = {
+    ...defaultGlobalConfig,
+    ...globalConfig,
+  }
   function getConstructor(item, fieldName) {
-    const constructors = Object.assign(
-      {
-        string(value) {
-          if (isString(value)) {
-            return value
-          }
-          if (globalConfig.castString) {
-            return '' + value
-          }
-          throw Error(`Expect a string for "${fieldName}", got "${value}"`)
-        },
-        number(value) {
-          if (isNumber(value)) {
-            return value
-          }
-          if (isString(value) && globalConfig.parseNumbers) {
-            return parseFloat(value)
-          }
-          throw Error(`Expect a number for "${fieldName}", got "${value}"`)
-        },
-        boolean(value) {
-          return !!value
-        },
-        array(value) {
-          return [].concat(value)
-        },
-        object(value) {
-          return Object.assign({}, value)
-        },
-        date(value) {
-          return new Date(value)
-        },
-        identity,
+    const constructors = {
+      string(value) {
+        if (isString(value)) {
+          return value
+        }
+        if (castString) {
+          return '' + value
+        }
+        throw Error(`Expect a string for "${fieldName}", got "${value}"`)
       },
-      globalConfig.types
-    )
+      number(value) {
+        if (isNumber(value)) {
+          return value
+        }
+        if (isString(value) && parseNumbers) {
+          return parseFloat(value)
+        }
+        throw Error(`Expect a number for "${fieldName}", got "${value}"`)
+      },
+      boolean(value) {
+        return !!value
+      },
+      array(value) {
+        return [...value]
+      },
+      object(value) {
+        return { ...value }
+      },
+      date(value) {
+        return new Date(value)
+      },
+      identity,
+      ...types,
+    }
 
     if (isFunction(item)) {
       return item
@@ -101,12 +108,10 @@ function modelz(globalConfig) {
 
       if (isString(fieldConfig.type)) {
         // type
-        return Object.assign(
-          {
-            construct: getConstructor(fieldConfig.type, fieldName),
-          },
-          fieldConfig
-        )
+        return {
+          construct: getConstructor(fieldConfig.type, fieldName),
+          ...fieldConfig,
+        }
       }
 
       if (isFunction(fieldConfig.get)) {
@@ -173,12 +178,19 @@ function modelz(globalConfig) {
   }
 
   return function Schema(fields, config) {
-    config = Object.assign({}, globalConfig, config)
+    config = {
+      embedPlainData,
+      extraProperties,
+      preInit,
+      postInit,
+      onChangeListener,
+      ...config,
+    }
     const modelName = config.name ? config.name : 'instance'
     const thisSchema = { modelName }
     return function construct(sourceData = {}) {
-      globalConfig.debug &&
-        globalConfig.debug.extend('create')(
+      debug &&
+        debug.extend('create')(
           `constructing ${modelName} with data %O`,
           sourceData
         )
@@ -190,14 +202,14 @@ function modelz(globalConfig) {
 
       let result = {}
       if (config.extraProperties) {
-        result = Object.assign({}, sourceData)
-      } else if (globalConfig.debug) {
+        result = { ...sourceData }
+      } else if (debug) {
         const fieldKeys = Object.keys(fields)
         const ignoredProperties = Object.keys(sourceData).filter(
           (key) => !fieldKeys.includes(key)
         )
         if (ignoredProperties.length) {
-          globalConfig.debug.extend('warn')(
+          debug.extend('warn')(
             `The properties %o are not defined on target ${modelName} and will therefore be dropped.`,
             ignoredProperties
           )
@@ -221,11 +233,10 @@ function modelz(globalConfig) {
       result = config.preInit(result)
       onChange = config.onChangeListener(result)
       for (const fieldName in fields) {
-        const fieldConfig = Object.assign(
-          {},
-          defaultFieldConfig,
-          parseConfig(fields[fieldName], fieldName)
-        )
+        const fieldConfig = {
+          ...defaultFieldConfig,
+          ...parseConfig(fields[fieldName], fieldName),
+        }
         Object.defineProperty(result, fieldName, {
           enumerable: fieldConfig.enumerable,
           get: function () {
@@ -275,7 +286,7 @@ function modelz(globalConfig) {
         }
       }
       result = config.postInit(result)
-      if (!globalConfig.extraProperties) {
+      if (!extraProperties) {
         Object.seal(result)
       }
       return result
