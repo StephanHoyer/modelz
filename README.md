@@ -4,7 +4,7 @@
 
 # modelz
 
-Simple model scheme helper
+Simple model schema helper
 
 With _modelz_, we try to build a `backbone/ampersand`-Model in a new way. No prototypes involved here.
 
@@ -191,7 +191,7 @@ const userSchema = Schema({
   onChangeListener: function(user) {
     return user.onChange.dispatch;
   }
-}
+})
 ```
 
 The listener should return a function that will be called, when an attribute on
