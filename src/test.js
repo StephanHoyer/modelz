@@ -275,13 +275,14 @@ o.spec('Schema', function () {
     xObj.x
     o(getCacheKeySpy.callCount).equals(3)
     o(getXSpy.callCount).equals(2)
-
+    const someDate = new Date()
     const getASpy = o.spy()
     const modelA = Schema({
       aDep: ['string', true, 'A'],
+      aDateDep: ['date', true, someDate],
       a: {
         get: getASpy,
-        cacheKey: ['aDep'],
+        cacheKey: ['aDep', 'aDateDep'],
       },
     })
     const aObj = modelA()
@@ -298,11 +299,14 @@ o.spec('Schema', function () {
     aObj.aDep = undefined
     aObj.a
     o(getASpy.callCount).equals(3)
+    aObj.aDateDep = new Date(someDate.getTime() + 1)
+    aObj.a
+    o(getASpy.callCount).equals(4)
   })
 
   o('double init', function () {
-    const initA = o.spy(a => a)
-    const initB = o.spy(a => a)
+    const initA = o.spy((a) => a)
+    const initB = o.spy((a) => a)
     const modalA = Schema({}, { postInit: initA, modelName: 'a' })
     const modalB = Schema({}, { postInit: initB, modelName: 'b' })
 

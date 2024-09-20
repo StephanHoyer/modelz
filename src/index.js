@@ -30,7 +30,12 @@ const defaultGlobalConfig = {
 
 function createCacheFunction({ cacheKey }) {
   if (isArray(cacheKey)) {
-    return (obj) => cacheKey.map((prop) => obj[prop]).join('|<3|')
+    return (obj) =>
+      cacheKey
+        .map((prop) =>
+          obj[prop] instanceof Date ? obj[prop].getTime() : obj[prop]
+        )
+        .join('|<3|')
   }
   if (isFunction(cacheKey)) {
     return cacheKey
