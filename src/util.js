@@ -33,3 +33,7 @@ export function isNumber(thing) {
 export function isUndefined(thing) {
   return typeof thing === 'undefined'
 }
+
+export function result(value, sourceData) {
+  return isFunction(value) ? value(sourceData) : value
+}

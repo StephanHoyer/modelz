@@ -7,6 +7,7 @@ import {
   isNumber,
   isObject,
   isString,
+  result,
   noop,
 } from './util.js'
 
@@ -15,6 +16,8 @@ const defaultFieldConfig = {
   getCacheKey: noop,
   enumerable: true,
   required: false,
+  format: identity,
+  parse: identity,
 }
 
 const defaultGlobalConfig = {
@@ -203,11 +206,10 @@ function modelz(globalConfig) {
         return sourceData
       }
       const _data = {}
-      let onChange = noop
 
-      let result = {}
+      let instance = {}
       if (config.extraProperties) {
-        result = { ...sourceData }
+        instance = { ...sourceData }
       } else if (debug) {
         const fieldKeys = Object.keys(fields)
         const ignoredProperties = Object.keys(sourceData).filter(
@@ -222,52 +224,54 @@ function modelz(globalConfig) {
       }
 
       if (config.embedPlainData) {
-        Object.defineProperty(result, '_data', {
+        Object.defineProperty(instance, '_data', {
           get: () => _data,
           enumerable: false,
         })
       }
-      Object.defineProperty(result, '_isInitialized', {
+      Object.defineProperty(instance, '_isInitialized', {
         get: () => true,
         enumerable: false,
       })
-      Object.defineProperty(result, '_schema', {
+      Object.defineProperty(instance, '_schema', {
         get: () => thisSchema,
         enumerable: false,
       })
-      result = config.preInit(result)
-      onChange = config.onChangeListener(result)
+      instance = config.preInit(instance)
+      const onChange = config.onChangeListener(instance)
       for (const fieldName in fields) {
         const fieldConfig = {
           ...defaultFieldConfig,
           ...parseConfig(fields[fieldName], fieldName),
         }
-        Object.defineProperty(result, fieldName, {
+        const { format, parse } = fieldConfig
+        Object.defineProperty(instance, fieldName, {
           enumerable: fieldConfig.enumerable,
           get: function () {
             if (fieldConfig.get) {
-              const key = fieldConfig.getCacheKey(result)
+              const key = fieldConfig.getCacheKey(instance)
               if (
                 !_data.hasOwnProperty(fieldName) ||
                 key == null ||
                 key !== _data[fieldName].key
               ) {
-                _data[fieldName] = { key, value: fieldConfig.get(result) }
+                _data[fieldName] = { key, value: fieldConfig.get(instance) }
               }
-              return _data[fieldName].value
+              return format(_data[fieldName].value)
             }
-            return result._data[fieldName]
+            return format(_data[fieldName])
           },
           set: function (value) {
-            const oldValue = result[fieldName]
-            if (isFunction(fieldConfig.set)) {
-              fieldConfig.set(result, value)
+            value = parse(value, instance, fieldConfig)
+            const oldValue = instance[fieldName]
+            if (fieldConfig.set) {
+              fieldConfig.set(instance, value)
             } else if (!fieldConfig.required && value == null) {
               _data[fieldName] = value = null
             } else {
               _data[fieldName] = fieldConfig.construct(
                 value,
-                result,
+                instance,
                 fieldConfig
               )
             }
@@ -276,25 +280,21 @@ function modelz(globalConfig) {
         })
 
         if (sourceData[fieldName] != null) {
-          result[fieldName] = sourceData[fieldName]
+          instance[fieldName] = sourceData[fieldName]
         } else if (fieldConfig.hasOwnProperty('default')) {
-          if (isFunction(fieldConfig.default)) {
-            result[fieldName] = fieldConfig.default(sourceData)
-          } else {
-            result[fieldName] = fieldConfig.default
-          }
+          instance[fieldName] = result(fieldConfig.default, sourceData)
         } else if (fieldConfig.required) {
           throw Error('No value set for ' + fieldName)
         } else if (!fieldConfig.get) {
           // default to null if it's not a computed prop
-          result[fieldName] = null
+          instance[fieldName] = null
         }
       }
-      result = config.postInit(result)
+      instance = config.postInit(instance)
       if (!extraProperties) {
-        Object.seal(result)
+        Object.seal(instance)
       }
-      return result
+      return instance
     }
   }
 }

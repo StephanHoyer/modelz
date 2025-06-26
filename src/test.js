@@ -317,4 +317,21 @@ o.spec('Schema', function () {
     modalB(a)
     o(initB.callCount).equals(1)
   })
+
+  o('parse/format', function () {
+    const model = Schema({
+      a: {
+        type: 'string',
+        format: (value) => `get(${value})`,
+        parse: (value, obj) => `set(${value}) objX(${obj.x})`,
+      },
+      x: 'string',
+    })
+    const testObj = model({ a: 'a', x: 'x' })
+    o(testObj._data.a).equals('set(a) objX(undefined)') // initial set of a where x is not set yet
+    o(testObj.a).equals('get(set(a) objX(undefined))')
+    testObj.a = 'b'
+    o(testObj._data.a).equals('set(b) objX(x)')
+    o(testObj.a).equals('get(set(b) objX(x))')
+  })
 })
