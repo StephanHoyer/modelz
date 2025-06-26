@@ -1,6 +1,6 @@
 {
   "name": "modelz",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "Simple model schema helper",
   "main": "modelz.js",
   "type": "module",
