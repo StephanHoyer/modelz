@@ -185,13 +185,16 @@ construction (see `test.js`).
 ### onChangeListener-Hook
 
 ```javascript
-const userSchema = Schema({
-  // fields definition
-}, {
-  onChangeListener: function(user) {
-    return user.onChange.dispatch;
+const userSchema = Schema(
+  {
+    // fields definition
+  },
+  {
+    onChangeListener: function (user) {
+      return user.onChange.dispatch
+    },
   }
-})
+)
 ```
 
 The listener should return a function that will be called, when an attribute on
@@ -265,6 +268,34 @@ const schema = Schema({
 })
 ```
 
+### parse/format
+
+With those two config values you can interfere the getting and setting of a normal prop. `parse` is called on setting the prop,
+it must be a function that returns the final value to set. The result of `format`-fn is return when getting a value.
+Both get the value as first argument and the obj as second art
+
+```javascript
+const model = Schema({
+  a: {
+    type: 'string',
+    format: (value) => `get(${value})`,
+    parse: (value, obj) => `set(${value}) objX(${obj.x})`,
+  },
+  x: 'string',
+})
+const testObj = model({ a: 'a', x: 'x' })
+
+// initial set of a where x is not set yet
+testObj.a // 'get(set(a) objX(undefined))'
+
+testObj.a = 'b'
+testObj.a // 'get(set(b) objX(x))')
+```
+
 ## Road map
 
 Refer to the issues.
+
+```
+
+```
