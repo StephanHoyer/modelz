@@ -259,7 +259,7 @@ function modelz(globalConfig) {
               }
               return format(_data[fieldName].value)
             }
-            return format(_data[fieldName])
+            return format(_data[fieldName], instance, fieldConfig)
           },
           set: function (value) {
             value = parse(value, instance, fieldConfig)

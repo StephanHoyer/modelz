@@ -272,7 +272,7 @@ const schema = Schema({
 
 With those two config values you can interfere the getting and setting of a normal prop. `parse` is called on setting the prop,
 it must be a function that returns the final value to set. The result of `format`-fn is return when getting a value.
-Both get the value as first argument and the obj as second art
+Both get the value as first argument, the obj as second argument and the field-config as the third argument.
 
 ```javascript
 const model = Schema({
