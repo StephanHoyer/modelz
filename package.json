@@ -31,7 +31,7 @@
     "@rollup/plugin-terser": "0.4.4",
     "eslint": "9.34.0",
     "ospec": "4.2.1",
-    "prettier": "3.6.1",
+    "prettier": "3.6.2",
     "rollup": "4.49.0",
     "rollup-plugin-filesize": "10.0.0"
   },
