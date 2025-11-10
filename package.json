@@ -32,7 +32,7 @@
     "eslint": "9.34.0",
     "ospec": "4.2.1",
     "prettier": "3.6.2",
-    "rollup": "4.49.0",
+    "rollup": "4.53.2",
     "rollup-plugin-filesize": "10.0.0"
   },
   "gitHead": "693cb9317093994ba515f34e13acc277735fb820",
