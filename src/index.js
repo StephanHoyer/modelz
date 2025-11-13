@@ -262,6 +262,7 @@ function modelz(globalConfig) {
             return format(_data[fieldName], instance, fieldConfig)
           },
           set: function (value) {
+            if (fieldConfig.get && !fieldConfig.set) return
             value = parse(value, instance, fieldConfig)
             const oldValue = instance[fieldName]
             if (fieldConfig.set) {

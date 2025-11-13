@@ -248,6 +248,17 @@ o.spec('Schema', function () {
         '{"a":"CC","b":"DD","enumeratedAb":"CC|DD"}'
       )
     })
+
+    o('it should ignore set (and therefore get() to fetch the old value)for computed property without set()', function () {
+      const schema = Schema({
+        ab: {
+          get: () => {
+            throw new Error('Should not call get during set if not defined')
+          },
+        },
+      })
+      schema({ ab: 'XX|YY' })
+    })
   })
 
   o('cache property', function () {
