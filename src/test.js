@@ -259,6 +259,20 @@ o.spec('Schema', function () {
       })
       schema({ ab: 'XX|YY' })
     })
+
+    o('it should not trigger set (and therefore get() to fetch the old value) on init', function () {
+      const schema = Schema({
+        ab: {
+          get: () => {
+            throw new Error('Should not call get on init')
+          },
+          set: () => {
+            throw new Error('Should not call set on init')
+          },
+        },
+      })
+      schema({ ab: 'XX|YY' })
+    })
   })
 
   o('cache property', function () {

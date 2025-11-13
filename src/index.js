@@ -244,11 +244,12 @@ function modelz(globalConfig) {
           ...defaultFieldConfig,
           ...parseConfig(fields[fieldName], fieldName),
         }
+        const isComputedProp = !!fieldConfig.get
         const { format, parse } = fieldConfig
         Object.defineProperty(instance, fieldName, {
           enumerable: fieldConfig.enumerable,
           get: function () {
-            if (fieldConfig.get) {
+            if (isComputedProp) {
               const key = fieldConfig.getCacheKey(instance)
               if (
                 !_data.hasOwnProperty(fieldName) ||
@@ -262,7 +263,7 @@ function modelz(globalConfig) {
             return format(_data[fieldName], instance, fieldConfig)
           },
           set: function (value) {
-            if (fieldConfig.get && !fieldConfig.set) return
+            if (isComputedProp && !fieldConfig.set) return
             value = parse(value, instance, fieldConfig)
             const oldValue = instance[fieldName]
             if (fieldConfig.set) {
@@ -279,14 +280,14 @@ function modelz(globalConfig) {
             onChange(fieldName, value, oldValue)
           },
         })
-
+        if (isComputedProp) continue
         if (sourceData[fieldName] != null) {
           instance[fieldName] = sourceData[fieldName]
         } else if (fieldConfig.hasOwnProperty('default')) {
           instance[fieldName] = result(fieldConfig.default, sourceData)
         } else if (fieldConfig.required) {
           throw Error('No value set for ' + fieldName)
-        } else if (!fieldConfig.get) {
+        } else {
           // default to null if it's not a computed prop
           instance[fieldName] = null
         }
