@@ -28,7 +28,7 @@
   },
   "homepage": "https://github.com/StephanHoyer/modelz",
   "devDependencies": {
-    "@rollup/plugin-terser": "0.4.4",
+    "@rollup/plugin-terser": "1.0.0",
     "eslint": "9.34.0",
     "ospec": "4.2.1",
     "prettier": "3.6.2",
